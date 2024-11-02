@@ -1,5 +1,5 @@
 {
-	"name": "@wrytlabs/core-template",
+	"name": "@wrytlabs/stablecoin-core",
 	"version": "0.0.1",
 	"private": false,
 	"license": "MIT",
@@ -7,7 +7,7 @@
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
 	"author": "samclassix <samclassix@proton.me>, wrytlabs <wrytlabs@proton.me>",
-	"description": "Core implementation",
+	"description": "Stablecoin Core implementation",
 	"directories": {
 		"doc": "docs",
 		"test": "tests"

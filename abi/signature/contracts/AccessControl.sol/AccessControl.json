@@ -1,0 +1,9 @@
+[
+    "error NotMinter(address)",
+    "error NotMover(address)",
+    "function checkMinter(address)",
+    "function checkMinterMover(address)",
+    "function checkMover(address)",
+    "function isMinter(address) view returns (bool)",
+    "function isMover(address) view returns (bool)"
+]

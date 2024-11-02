@@ -1,0 +1,20 @@
+[
+    "constructor(address)",
+    "error MinHoldingDuration()",
+    "error NotQualified()",
+    "error NotStableCoin()",
+    "function MIN_HOLDING_DURATION() view returns (uint256)",
+    "function _update(address,address,uint256)",
+    "function checkCanPropose(address,address[]) view",
+    "function checkHoldingDuration(address) view",
+    "function coin() view returns (address)",
+    "function delegates(address) view returns (address)",
+    "function holdingDuration(address) view returns (uint256)",
+    "function kamikaze(address[],uint256)",
+    "function relativeVotes(address) view returns (uint256)",
+    "function totalVotes() view returns (uint256)",
+    "function totalVotesAnchorTime() view returns (uint256)",
+    "function totalVotesAtAnchor() view returns (uint256)",
+    "function votes(address) view returns (uint256)",
+    "function votesDelegated(address,address[]) view returns (uint256)"
+]
