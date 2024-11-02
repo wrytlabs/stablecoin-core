@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import './Stablecoin.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 contract TrackerControl {
 	uint8 private constant TIME_RESOLUTION_BITS = 20;
@@ -9,7 +9,7 @@ contract TrackerControl {
 	uint32 public QUORUM; // @dev: quorum in PPM, for canActivate
 	uint256 public MIN_HOLDING_DURATION; // @dev: min duration to canActivate
 
-	Stablecoin public immutable coin;
+	IERC20 public immutable coin;
 	string public name;
 
 	uint256 public totalTracksAtAnchor;
@@ -17,7 +17,7 @@ contract TrackerControl {
 
 	// ---------------------------------------------------------------------------------------
 
-	error NotStableCoin();
+	error NotCoin();
 	error MinHoldingDuration();
 	error NotQualified();
 
@@ -28,7 +28,7 @@ contract TrackerControl {
 
 	// ---------------------------------------------------------------------------------------
 
-	constructor(Stablecoin _coin, string memory _name, uint32 _quorum, uint8 _days) {
+	constructor(IERC20 _coin, string memory _name, uint32 _quorum, uint8 _days) {
 		coin = _coin;
 		name = _name;
 		QUORUM = _quorum; // PPM
@@ -51,7 +51,7 @@ contract TrackerControl {
 	}
 
 	function _update(address from, address to, uint256 amount) public {
-		if (msg.sender != address(coin)) revert NotStableCoin();
+		if (msg.sender != address(coin)) revert NotCoin();
 		uint256 roundingLoss = _adjustRecipientTracksAnchor(to, amount);
 		_adjustTotalTracks(from, amount, roundingLoss);
 	}
