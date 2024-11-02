@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import './Stablecoin.sol';
+import '../Stablecoin.sol';
 
 contract Governance {
 	uint32 private constant QUORUM = 2000; // 20 %
@@ -25,6 +25,7 @@ contract Governance {
 	mapping(address holder => uint64 timestamp) private voteAnchor;
 
 	// ---------------------------------------------------------------------------------------
+
 	constructor(Stablecoin _coin) {
 		coin = _coin;
 	}

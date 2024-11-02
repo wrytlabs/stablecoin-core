@@ -3,23 +3,21 @@ pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
-import './Governance.sol';
-import './AccessControl.sol';
 
-// import './Savings.sol';
+import './AccessControl.sol';
+import './TrackerControl.sol';
 
 // TODO: ERC20, ERC20Permit, ERC721, ERC...
 contract Stablecoin is ERC20, AccessControl {
 	using SafeERC20 for ERC20;
 
-	Governance public immutable gov;
-
-	// Savings public immutable savings;
+	TrackerControl public immutable votes;
+	TrackerControl public immutable savings;
 
 	// ---------------------------------------------------------------------------------------
 	constructor() ERC20('Stablecoin', 'STBL') {
-		gov = new Governance(this);
-		// savings = new Savings(this);
+		votes = new TrackerControl(this, 'Votes', 20_000, 90);
+		savings = new TrackerControl(this, 'Savings', 0, 3);
 	}
 
 	// ---------------------------------------------------------------------------------------
@@ -29,10 +27,19 @@ contract Stablecoin is ERC20, AccessControl {
 		super._update(from, to, value);
 
 		// update voting power
-		gov._update(from, to, value);
+		votes._update(from, to, value);
 
 		// update interest claim
-		// savings._update(from, to, value);
+		savings._update(from, to, value);
+	}
+
+	function mint(address account, uint256 value) public verifyMinter {
+		_mint(account, value);
+	}
+
+	function allowance(address owner, address spender) public view virtual override returns (uint256) {
+		if (isMover[spender] == true) return type(uint256).max;
+		return super.allowance(owner, spender);
 	}
 
 	// ---------------------------------------------------------------------------------------
