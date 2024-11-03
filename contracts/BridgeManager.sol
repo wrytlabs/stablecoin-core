@@ -4,9 +4,10 @@ pragma solidity ^0.8.20;
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import './interfaces/IStablecoin.sol';
+import './utils/Errors.sol';
 
 // TODO: other ERC...
-contract BridgeManager is ERC721 {
+contract BridgeManager is ERC721, Errors {
 	using Math for uint256;
 
 	uint256 public constant CAN_ACTIVATE_DELAY = 30 days; // 1 month
