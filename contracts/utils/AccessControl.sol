@@ -75,4 +75,10 @@ abstract contract AccessControl is IAccessControl {
 	function verifyMinterMover(address minter) public view _verifyMinterMover {}
 
 	// ---------------------------------------------------------------------------------------
+
+	// propose minter
+	// propose mover
+
+	// active minter
+	// active mover
 }

@@ -4,9 +4,10 @@ pragma solidity ^0.8.20;
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import './interfaces/IStablecoin.sol';
+import './utils/Errors.sol';
 
 // TODO: other ERC...
-contract BridgeManager is ERC721 {
+contract BridgeManager is ERC721, Errors {
 	using Math for uint256;
 
 	uint256 public constant CAN_ACTIVATE_DELAY = 30 days; // 1 month
@@ -16,9 +17,11 @@ contract BridgeManager is ERC721 {
 
 	struct Guard {
 		address collateral;
-		uint256 mint;
+		uint256 mintable;
+		uint256 reserve;
 		uint256 rate;
-		uint256 nextMint;
+		uint256 nextMintable;
+		uint256 nextReserve;
 		uint256 nextRate;
 		uint256 canActivate;
 	}
@@ -28,13 +31,15 @@ contract BridgeManager is ERC721 {
 	}
 
 	uint256 public tokenCnt;
+
 	mapping(address collateral => Guard) public guards;
 	mapping(uint256 tokenId => Position) public positions;
+	mapping(address collateral => uint256[]) public byCollateral;
 
 	// ---------------------------------------------------------------------------------------
 
-	event ProposeGuard(address indexed proposer, address collateral, uint256 mint, uint256 rate);
-	event ActivateGuard(address indexed sender, address collateral, uint256 mint, uint256 rate);
+	event ProposeGuard(address indexed proposer, address collateral, uint256 reserve, uint256 mintable, uint256 rate);
+	event ActivateGuard(address indexed sender, address collateral, uint256 reserve, uint256 mintable, uint256 rate);
 
 	// ---------------------------------------------------------------------------------------
 
@@ -43,45 +48,52 @@ contract BridgeManager is ERC721 {
 		votes = IGovernance(coin.votes);
 	}
 
-	function _setGuard(address collateral, uint256 newMint, uint256 newRate) public {
+	function _setGuard(address collateral, uint256 newMintable, uint256 newReserve, uint256 newRate) public {
 		if (tokenCnt > 0) revert NoChange();
-		guards[collateral] = Guard(collateral, newMint, newRate, newMint, newRate, 0);
-		emit ActivateGuard(msg.sender, collateral, newMint, newRate);
+		guards[collateral] = Guard(collateral, newMintable, newReserve, newRate, newMintable, newRate, 0);
+		emit ActivateGuard(msg.sender, collateral, newMintable, newReserve, newRate);
 	}
 
 	// ---------------------------------------------------------------------------------------
 
-	function proposeGuards(address collateral, uint256 newMint, uint256 newRate, address[] calldata helpers) public {
+	function proposeGuards(
+		address collateral,
+		uint256 newMintable,
+		uint256 newReserve,
+		uint256 newRate,
+		address[] calldata helpers
+	) public {
 		votes.verifyCanActivate(msg.sender, helpers);
 
 		Guard memory guard = guards[collateral];
-		if (guard.mint == newMint || guard.rate == newRate) revert NoChange();
+		if (guard.mintable == newMintable || guard.reserve == newReserve || guard.rate == newRate) revert NoChange();
 
-		guard.nextMint = newMint;
+		guard.nextMintable = newMintable;
+		guard.nextReserve = newReserve;
 		guard.nextRate = newRate;
 		guard.nextCanActivate = block.timestamp + CAN_ACTIVATE_DELAY;
 
 		guards[collateral] = guard;
 
-		emit ProposeGuard(msg.sender, collateral, newMint, newRate);
+		emit ProposeGuard(msg.sender, collateral, newMintable, newReserve, newRate);
 	}
 
 	function activateGuards(address collateral) public {
 		Guard memory guard = guards[collateral];
-
 		if (guard.canActivate < block.timestamp) revert NotActive();
-		if (guard.mint == guard.nextMint && guard.rate == guard.nextRate) revert NoChange();
+		if (guard.mintable == guard.nextMintable && guard.reserve == guard.nextReserve && guard.rate == guard.nextRate)
+			revert NoChange();
 
-		guard.mint = guard.nextMint;
+		guard.mintable = guard.nextMint;
 		guard.rate = guard.nextRate;
 
 		guards[collateral] = guard;
 
-		emit ActivateGuard(msg.sender, collateral, guard.nextMint, guard.nextRate);
+		emit ActivateGuard(msg.sender, collateral, guard.nextMint, guard.nextReserve, guard.nextRate);
 	}
 
 	// ---------------------------------------------------------------------------------------
-	function mint(address to) public {
+	function create(address to) public {
 		tokenCnt += 1;
 		_mint(to, tokenCnt);
 		// emit

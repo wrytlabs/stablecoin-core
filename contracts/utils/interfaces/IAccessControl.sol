@@ -1,22 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-interface IAccessControl {
-	// Custom errors
-	error NotCoin();
-	error NotMinter(address caller);
-	error MinterExpired(address caller);
-	error NotMover(address caller);
-	error MoverExpired(address caller);
+import '../Errors.sol';
 
+interface IAccessControl is Errors {
 	// View functions
 	function isMinter(address) external view returns (bool);
 
-	function minterActivation(address) external view returns (uint256);
-
 	function isMover(address) external view returns (bool);
 
+	function minterActivation(address) external view returns (uint256);
+
+	function minterExpiration(address) external view returns (uint256);
+
 	function moverActivation(address) external view returns (uint256);
+
+	function moverExpiration(address) external view returns (uint256);
 
 	// Check functions
 	function checkOnlyCoin(address toCheck) external view returns (bool);

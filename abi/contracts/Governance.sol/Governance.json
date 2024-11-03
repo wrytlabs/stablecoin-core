@@ -26,6 +26,38 @@
         "type": "constructor"
     },
     {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "caller",
+                "type": "address"
+            }
+        ],
+        "name": "MinterExpired",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "caller",
+                "type": "address"
+            }
+        ],
+        "name": "MoverExpired",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NoChange",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NotActive",
+        "type": "error"
+    },
+    {
         "inputs": [],
         "name": "NotAvailable",
         "type": "error"
@@ -36,6 +68,28 @@
         "type": "error"
     },
     {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "NotMinter",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "NotMover",
+        "type": "error"
+    },
+    {
         "inputs": [],
         "name": "NotPassedDuration",
         "type": "error"
@@ -43,6 +97,11 @@
     {
         "inputs": [],
         "name": "NotQualified",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NotServed",
         "type": "error"
     },
     {
