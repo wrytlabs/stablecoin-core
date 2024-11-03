@@ -124,6 +124,11 @@
     },
     {
         "inputs": [],
+        "name": "NotAvailable",
+        "type": "error"
+    },
+    {
+        "inputs": [],
         "name": "NotCoin",
         "type": "error"
     },
@@ -131,7 +136,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "caller",
+                "name": "account",
                 "type": "address"
             }
         ],
@@ -142,11 +147,21 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "caller",
+                "name": "account",
                 "type": "address"
             }
         ],
         "name": "NotMover",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NotPassedDuration",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NotQualified",
         "type": "error"
     },
     {
@@ -334,6 +349,49 @@
             {
                 "indexed": true,
                 "internalType": "address",
+                "name": "proposer",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "mover",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "message",
+                "type": "string"
+            },
+            {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "isMover",
+                "type": "bool"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "activation",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "expiration",
+                "type": "uint256"
+            }
+        ],
+        "name": "ProposeMover",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
                 "name": "from",
                 "type": "address"
             },
@@ -390,6 +448,42 @@
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "string",
+                "name": "message",
+                "type": "string"
+            }
+        ],
+        "name": "_setMinter",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "string",
+                "name": "message",
+                "type": "string"
+            }
+        ],
+        "name": "_setMover",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {

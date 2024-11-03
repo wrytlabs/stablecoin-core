@@ -45,6 +45,14 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 		uint256 activation,
 		uint256 expiration
 	);
+	event ProposeMover(
+		address indexed proposer,
+		address indexed mover,
+		string message,
+		bool isMover,
+		uint256 activation,
+		uint256 expiration
+	);
 	event ProposeFund(address indexed proposer, uint256 distribution, uint256 minSize, uint256 canActivate);
 	event ActivateFund(address indexed sender, uint256 distribution, uint256 minSize);
 	event DeclareProfit(address indexed sender, uint256 value, uint256 total);
@@ -56,8 +64,22 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 		votes = new Governance(this, 'Votes', 20_000, 90);
 		savings = new Savings(this, 'Savings', 0, 3);
 		funds = new Community(this);
+	}
 
-		// init next values
+	function _setMinter(address to, string calldata message) public {
+		if (totalSupply() > 0) revert NoChange();
+		isMinter[to] = true;
+		minterActivation[to] = block.timestamp;
+		minterExpiration[to] = type(uint256).max;
+		emit ProposeMinter(msg.sender, to, message, true, block.timestamp, type(uint256).max);
+	}
+
+	function _setMover(address to, string calldata message) public {
+		if (totalSupply() > 0) revert NoChange();
+		isMover[to] = true;
+		moverActivation[to] = block.timestamp;
+		moverExpiration[to] = type(uint256).max;
+		emit ProposeMover(msg.sender, to, message, true, block.timestamp, type(uint256).max);
 	}
 
 	// ---------------------------------------------------------------------------------------
@@ -79,7 +101,7 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	}
 
 	// ---------------------------------------------------------------------------------------
-
+	// TODO: move part of logic to AccessControl. do same for mover
 	function proposeMinter(address minter, bool activate, string calldata message, address[] calldata helpers) public {
 		votes.checkCanActivate(msg.sender, helpers);
 
