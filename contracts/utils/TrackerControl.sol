@@ -4,7 +4,9 @@ pragma solidity ^0.8.20;
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
-contract TrackerControl {
+import './interfaces/ITrackerControl.sol';
+
+contract TrackerControl is ITrackerControl {
 	using SafeERC20 for IERC20;
 
 	uint8 private constant TIME_RESOLUTION_BITS = 20;
@@ -22,13 +24,6 @@ contract TrackerControl {
 
 	mapping(address owner => address delegate) public delegates;
 	mapping(address holder => uint64 timestamp) private trackerAnchor;
-
-	// ---------------------------------------------------------------------------------------
-
-	error NotCoin();
-	error NotPassedDuration();
-	error NotQualified();
-	error NotAvailable();
 
 	// ---------------------------------------------------------------------------------------
 

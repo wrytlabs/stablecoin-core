@@ -1,12 +1,10 @@
 [
-    "constructor(address,string,uint32,uint8)",
     "error NotAvailable()",
     "error NotCoin()",
     "error NotPassedDuration()",
     "error NotQualified()",
     "function MIN_HOLDING_DURATION() view returns (uint256)",
     "function QUORUM() view returns (uint32)",
-    "function _update(address,address,uint256)",
     "function checkCanActivate(address,address[]) view returns (bool)",
     "function checkHoldingDuration(address) view returns (bool)",
     "function checkOnlyCoin(address) view returns (bool)",

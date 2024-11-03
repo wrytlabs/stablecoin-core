@@ -4,19 +4,23 @@ pragma solidity ^0.8.20;
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
+import './interfaces/IAccessControl.sol';
 import './interfaces/IStablecoin.sol';
+
 import './AccessControl.sol';
 import './Governance.sol';
 import './Savings.sol';
+import './Community.sol';
 
 // TODO: ERC20, ERC20Permit, ERC721, ERC...
-contract Stablecoin is ERC20, AccessControl {
+contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	using SafeERC20 for ERC20;
 
 	uint256 public constant CAN_ACTIVATE_DELAY = 30 days;
 
 	Governance public immutable votes;
 	Savings public immutable savings;
+	Community public immutable funds;
 
 	uint256 public totalProfit;
 	uint256 public totalLoss;
@@ -36,20 +40,15 @@ contract Stablecoin is ERC20, AccessControl {
 
 	// ---------------------------------------------------------------------------------------
 
-	error NoChange();
-	error NotActive();
-
-	// ---------------------------------------------------------------------------------------
-
 	constructor() ERC20('Stablecoin', 'STBL') {
 		votes = new Governance(this, 'Votes', 20_000, 90);
 		savings = new Savings(this, 'Savings', 0, 3);
+		funds = new Community(this);
 	}
 
 	// ---------------------------------------------------------------------------------------
 	// ERC20 modifications
 	function _update(address from, address to, uint256 value) internal virtual override {
-		// openzeppelin: use "value"
 		// update voting power
 		votes._update(from, to, value);
 
@@ -103,11 +102,11 @@ contract Stablecoin is ERC20, AccessControl {
 	// ---------------------------------------------------------------------------------------
 
 	function declareProfit(address from, uint256 value) public _verifyMover {
-		uint256 balanceGovernance = balanceOf(address(votes));
+		uint256 balanceCommunity = balanceOf(address(funds));
 
-		if (balanceGovernance * 1_000_000 < totalSupply() * fundDistribution) {
-			// claim for community fund
-			_transfer(from, address(votes), value);
+		if (balanceCommunity * 1_000_000 < totalSupply() * fundDistribution) {
+			// claim for funds (community)
+			_transfer(from, address(funds), value);
 		} else {
 			// claim for savings (stablecoin holders)
 			_transfer(from, address(savings), value);

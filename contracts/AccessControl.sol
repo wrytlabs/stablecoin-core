@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import './interfaces/IStablecoin.sol';
+import './interfaces/IAccessControl.sol';
 
-abstract contract AccessControl is IStablecoin {
+abstract contract AccessControl is IAccessControl {
 	mapping(address => bool) public isMinter;
 	mapping(address => uint256) public minterExpiration;
 
@@ -12,13 +12,10 @@ abstract contract AccessControl is IStablecoin {
 
 	// ---------------------------------------------------------------------------------------
 
-	error NotMinter(address caller);
-	error MinterExpired(address caller);
-
-	error NotMover(address caller);
-	error MoverExpired(address caller);
-
-	// ---------------------------------------------------------------------------------------
+	modifier _verifyOnlyCoin() {
+		if (checkOnlyCoin(msg.sender) == false) revert NotCoin();
+		_;
+	}
 
 	modifier _verifyMinter() {
 		if (checkMinter(msg.sender) == false) revert NotMinter(msg.sender);
@@ -37,6 +34,11 @@ abstract contract AccessControl is IStablecoin {
 	}
 
 	// ---------------------------------------------------------------------------------------
+
+	function checkOnlyCoin(address toCheck) public view returns (bool) {
+		if (toCheck != address(this)) return false;
+		return true;
+	}
 
 	function checkMinter(address toCheck) public view returns (bool) {
 		if (isMinter[toCheck] == false) return false;
@@ -57,6 +59,8 @@ abstract contract AccessControl is IStablecoin {
 	}
 
 	// ---------------------------------------------------------------------------------------
+
+	function verifyOnlyCoin(address toCheck) public view _verifyOnlyCoin {}
 
 	function verifyMinter(address minter) public view _verifyMinter {}
 

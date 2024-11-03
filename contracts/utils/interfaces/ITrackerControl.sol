@@ -4,6 +4,11 @@ pragma solidity ^0.8.20;
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 interface ITrackerControl {
+	error NotCoin();
+	error NotPassedDuration();
+	error NotQualified();
+	error NotAvailable();
+
 	function QUORUM() external view returns (uint32);
 
 	function MIN_HOLDING_DURATION() external view returns (uint256);
@@ -17,6 +22,10 @@ interface ITrackerControl {
 	function totalTracksAnchorTime() external view returns (uint256);
 
 	function delegates(address owner) external view returns (address);
+
+	function checkOnlyCoin(address toCheck) external view returns (bool);
+
+	function verifyOnlyCoin(address toCheck) external view;
 
 	function totalTracks() external view returns (uint256);
 

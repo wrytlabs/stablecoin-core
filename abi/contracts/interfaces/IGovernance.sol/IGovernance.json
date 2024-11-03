@@ -1,31 +1,5 @@
 [
     {
-        "inputs": [
-            {
-                "internalType": "contract IERC20",
-                "name": "_coin",
-                "type": "address"
-            },
-            {
-                "internalType": "string",
-                "name": "_name",
-                "type": "string"
-            },
-            {
-                "internalType": "uint32",
-                "name": "_quorum",
-                "type": "uint32"
-            },
-            {
-                "internalType": "uint8",
-                "name": "_days",
-                "type": "uint8"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
         "inputs": [],
         "name": "NotAvailable",
         "type": "error"
@@ -69,29 +43,6 @@
             }
         ],
         "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "from",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "_update",
-        "outputs": [],
-        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -181,7 +132,7 @@
         "outputs": [
             {
                 "internalType": "address",
-                "name": "delegate",
+                "name": "",
                 "type": "address"
             }
         ],

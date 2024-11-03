@@ -2,23 +2,37 @@
 pragma solidity ^0.8.20;
 
 interface IAccessControl {
-	function isMinter(address) external view returns (bool);
+	// Custom errors
+	error NotCoin();
+	error NotMinter(address caller);
+	error MinterExpired(address caller);
+	error NotMover(address caller);
+	error MoverExpired(address caller);
 
-	function isMover(address) external view returns (bool);
+	// View functions
+	function isMinter(address) external view returns (bool);
 
 	function minterExpiration(address) external view returns (uint256);
 
+	function isMover(address) external view returns (bool);
+
 	function moverExpiration(address) external view returns (uint256);
 
-	function checkMinter(address minter) external view returns (bool);
+	// Check functions
+	function checkOnlyCoin(address toCheck) external view returns (bool);
 
-	function checkMover(address mover) external view returns (bool);
+	function checkMinter(address toCheck) external view returns (bool);
+
+	function checkMover(address toCheck) external view returns (bool);
 
 	function checkMinterMover(address toCheck) external view returns (bool);
 
-	function verifyMinter(address minter) external;
+	// Verify functions
+	function verifyOnlyCoin(address toCheck) external view;
 
-	function verifyMover(address mover) external;
+	function verifyMinter(address minter) external view;
 
-	function verifyMinterMover(address minter) external;
+	function verifyMover(address minter) external view;
+
+	function verifyMinterMover(address minter) external view;
 }
