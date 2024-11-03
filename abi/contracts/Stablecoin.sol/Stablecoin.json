@@ -150,6 +150,11 @@
         "type": "error"
     },
     {
+        "inputs": [],
+        "name": "NotServed",
+        "type": "error"
+    },
+    {
         "anonymous": false,
         "inputs": [
             {
@@ -171,7 +176,7 @@
                 "type": "uint256"
             }
         ],
-        "name": "ActivatedFund",
+        "name": "ActivateFund",
         "type": "event"
     },
     {
@@ -286,6 +291,49 @@
             {
                 "indexed": true,
                 "internalType": "address",
+                "name": "proposer",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "minter",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "message",
+                "type": "string"
+            },
+            {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "isMinter",
+                "type": "bool"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "activation",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "expiration",
+                "type": "uint256"
+            }
+        ],
+        "name": "ProposeMinter",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
                 "name": "from",
                 "type": "address"
             },
@@ -304,6 +352,32 @@
         ],
         "name": "Transfer",
         "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "ACTIVATION_DURATION",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "ACTIVATION_MULTIPLIER",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
     },
     {
         "inputs": [],
@@ -620,7 +694,45 @@
                 "type": "address"
             }
         ],
+        "name": "minterActivation",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
         "name": "minterExpiration",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "moverActivation",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -721,6 +833,34 @@
             }
         ],
         "name": "proposeFundDistribution",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "minter",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "activate",
+                "type": "bool"
+            },
+            {
+                "internalType": "string",
+                "name": "message",
+                "type": "string"
+            },
+            {
+                "internalType": "address[]",
+                "name": "helpers",
+                "type": "address[]"
+            }
+        ],
+        "name": "proposeMinter",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"

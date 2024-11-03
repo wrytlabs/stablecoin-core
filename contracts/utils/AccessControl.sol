@@ -5,9 +5,11 @@ import './interfaces/IAccessControl.sol';
 
 abstract contract AccessControl is IAccessControl {
 	mapping(address => bool) public isMinter;
+	mapping(address => uint256) public minterActivation;
 	mapping(address => uint256) public minterExpiration;
 
 	mapping(address => bool) public isMover;
+	mapping(address => uint256) public moverActivation;
 	mapping(address => uint256) public moverExpiration;
 
 	// ---------------------------------------------------------------------------------------
@@ -42,13 +44,17 @@ abstract contract AccessControl is IAccessControl {
 
 	function checkMinter(address toCheck) public view returns (bool) {
 		if (isMinter[toCheck] == false) return false;
-		if (minterExpiration[toCheck] < block.timestamp) return false;
+		if (minterActivation[toCheck] == 0) return false;
+		if (minterActivation[toCheck] > block.timestamp) return false;
+		if (minterExpiration[toCheck] <= block.timestamp) return false;
 		return true;
 	}
 
 	function checkMover(address toCheck) public view returns (bool) {
 		if (isMover[toCheck] == false) return false;
-		if (moverExpiration[toCheck] < block.timestamp) return false;
+		if (moverActivation[toCheck] == 0) return false;
+		if (moverActivation[toCheck] > block.timestamp) return false;
+		if (moverExpiration[toCheck] <= block.timestamp) return false;
 		return true;
 	}
 

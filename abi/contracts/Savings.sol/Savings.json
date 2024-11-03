@@ -2,7 +2,7 @@
     {
         "inputs": [
             {
-                "internalType": "contract IERC20",
+                "internalType": "contract IStablecoin",
                 "name": "_coin",
                 "type": "address"
             },
@@ -44,6 +44,31 @@
         "inputs": [],
         "name": "NotQualified",
         "type": "error"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "total",
+                "type": "uint256"
+            }
+        ],
+        "name": "DepositFund",
+        "type": "event"
     },
     {
         "inputs": [],
@@ -161,7 +186,7 @@
         "name": "coin",
         "outputs": [
             {
-                "internalType": "contract IERC20",
+                "internalType": "contract IStablecoin",
                 "name": "",
                 "type": "address"
             }
@@ -247,6 +272,45 @@
             }
         ],
         "name": "relativeTracks",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "totalAllocate",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "totalAllocateClaim",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "totalDeposit",
         "outputs": [
             {
                 "internalType": "uint256",

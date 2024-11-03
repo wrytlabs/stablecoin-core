@@ -2,7 +2,7 @@
     {
         "inputs": [
             {
-                "internalType": "contract IERC20",
+                "internalType": "contract IStablecoin",
                 "name": "_coin",
                 "type": "address"
             },
@@ -161,7 +161,7 @@
         "name": "coin",
         "outputs": [
             {
-                "internalType": "contract IERC20",
+                "internalType": "contract IStablecoin",
                 "name": "",
                 "type": "address"
             }

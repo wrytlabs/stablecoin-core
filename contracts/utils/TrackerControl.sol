@@ -5,6 +5,7 @@ import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 import './interfaces/ITrackerControl.sol';
+import '../interfaces/IStablecoin.sol';
 
 contract TrackerControl is ITrackerControl {
 	using SafeERC20 for IERC20;
@@ -14,7 +15,7 @@ contract TrackerControl is ITrackerControl {
 	uint32 public QUORUM; // @dev: quorum in PPM, for canActivate
 	uint256 public MIN_HOLDING_DURATION; // @dev: min duration to canActivate
 
-	IERC20 public immutable coin;
+	IStablecoin public immutable coin;
 	string public name;
 
 	uint256 public totalTracksAtAnchor;
@@ -41,7 +42,7 @@ contract TrackerControl is ITrackerControl {
 
 	// ---------------------------------------------------------------------------------------
 
-	constructor(IERC20 _coin, string memory _name, uint32 _quorum, uint8 _days) {
+	constructor(IStablecoin _coin, string memory _name, uint32 _quorum, uint8 _days) {
 		coin = _coin;
 		name = _name;
 		QUORUM = _quorum; // PPM

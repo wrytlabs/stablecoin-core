@@ -12,11 +12,11 @@ interface IAccessControl {
 	// View functions
 	function isMinter(address) external view returns (bool);
 
-	function minterExpiration(address) external view returns (uint256);
+	function minterActivation(address) external view returns (uint256);
 
 	function isMover(address) external view returns (bool);
 
-	function moverExpiration(address) external view returns (uint256);
+	function moverActivation(address) external view returns (uint256);
 
 	// Check functions
 	function checkOnlyCoin(address toCheck) external view returns (bool);

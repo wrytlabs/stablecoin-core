@@ -59,6 +59,11 @@
         "type": "error"
     },
     {
+        "inputs": [],
+        "name": "NotServed",
+        "type": "error"
+    },
+    {
         "anonymous": false,
         "inputs": [
             {
@@ -410,7 +415,7 @@
                 "type": "address"
             }
         ],
-        "name": "minterExpiration",
+        "name": "minterActivation",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -429,7 +434,7 @@
                 "type": "address"
             }
         ],
-        "name": "moverExpiration",
+        "name": "moverActivation",
         "outputs": [
             {
                 "internalType": "uint256",

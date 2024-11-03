@@ -3,6 +3,8 @@ pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
+import '../../interfaces/IStablecoin.sol';
+
 interface ITrackerControl {
 	error NotCoin();
 	error NotPassedDuration();
@@ -13,7 +15,7 @@ interface ITrackerControl {
 
 	function MIN_HOLDING_DURATION() external view returns (uint256);
 
-	function coin() external view returns (IERC20);
+	function coin() external view returns (IStablecoin);
 
 	function name() external view returns (string memory);
 
