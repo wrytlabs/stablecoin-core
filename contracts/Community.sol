@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import './interfaces/ICommunity.sol';
 import './Stablecoin.sol';
 
-contract Community {
+contract Community is ICommunity {
 	Stablecoin public immutable coin;
 
 	uint256 public totalDeposit;
