@@ -16,6 +16,7 @@ contract Stablecoin is ERC20, AccessControl {
 	Savings public immutable savings;
 
 	// ---------------------------------------------------------------------------------------
+
 	constructor() ERC20('Stablecoin', 'STBL') {
 		votes = new Governance(this, 'Votes', 20_000, 90);
 		savings = new Savings(this, 'Savings', 0, 3);
@@ -34,21 +35,29 @@ contract Stablecoin is ERC20, AccessControl {
 		savings._update(from, to, value);
 	}
 
-	function mint(address account, uint256 value) public verifyMinter {
-		_mint(account, value);
-	}
-
 	function allowance(address owner, address spender) public view virtual override returns (uint256) {
 		if (isMover[spender] == true) return type(uint256).max;
 		return super.allowance(owner, spender);
 	}
 
 	// ---------------------------------------------------------------------------------------
-	function claimProfit(address from, uint256 value) public verifyMover {
+
+	// function proposeMinter(address minter, ) public {
+	// 	address[] memory emptyArray;
+	// 	votes.checkCanActivate(msg.sender, emptyArray);
+	// }
+
+	function mint(address account, uint256 value) public _verifyMinter {
+		_mint(account, value);
+	}
+
+	// ---------------------------------------------------------------------------------------
+
+	function claimProfit(address from, uint256 value) public _verifyMover {
 		// make claim
 	}
 
-	function mintLoss(address to, uint256 value) public verifyMinter {
+	function mintLoss(address to, uint256 value) public _verifyMinter {
 		// mint loss
 	}
 }
