@@ -56,6 +56,8 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 		votes = new Governance(this, 'Votes', 20_000, 90);
 		savings = new Savings(this, 'Savings', 0, 3);
 		funds = new Community(this);
+
+		// init next values
 	}
 
 	// ---------------------------------------------------------------------------------------
@@ -72,7 +74,7 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	}
 
 	function allowance(address owner, address spender) public view virtual override(ERC20, IERC20) returns (uint256) {
-		if (isMover[spender] == true) return type(uint256).max;
+		if (checkMover(spender) == true) return type(uint256).max;
 		return super.allowance(owner, spender);
 	}
 
@@ -122,7 +124,7 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	function proposeFundDistribution(uint256 distribution, uint256 size, address[] calldata helpers) public {
 		votes.verifyCanActivate(msg.sender, helpers);
 
-		if (fundDistribution == distribution && fundMinSize == size) revert NoChange();
+		if (fundDistribution == distribution || fundMinSize == size) revert NoChange();
 
 		nextFundDistribution = distribution;
 		nextFundMinSize = size;
@@ -148,7 +150,7 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 
 		uint256 balanceCommunity = balanceOf(address(funds));
 
-		uint256 distBalance = (totalSupply() * fundDistribution - balanceCommunity * 1_000_000) / 1_000_000;
+		uint256 distBalance = (totalSupply() * fundDistribution) / 1_000_000;
 		uint256 missingMinBalance = balanceCommunity < fundMinSize ? fundMinSize - balanceCommunity : 0;
 		uint256 missingDistBalance = balanceCommunity < distBalance ? distBalance - balanceCommunity : 0;
 		uint256 maxDistribution = Math.max(missingMinBalance, missingDistBalance);
@@ -160,7 +162,7 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 
 		if (value - maxDistribution > 0) {
 			_transfer(from, address(savings), value - maxDistribution);
-			// savings.declareDeposit(from, maxDistribution);
+			savings.declareDeposit(from, maxDistribution);
 		}
 
 		totalProfit += value;

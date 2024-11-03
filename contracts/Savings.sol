@@ -28,11 +28,13 @@ contract Savings is ISavings, TrackerControl {
 		uint8 _days
 	) TrackerControl(_coin, _name, _quorum, _days) {}
 
-	// function declareDeposit(address from, uint256 value) public {
-	// 	coin.verifyOnlyCoin(msg.sender);
-	// 	totalDeposit += value;
-	// 	emit DepositFund(from, value, totalDeposit);
-	// }
+	// ---------------------------------------------------------------------------------------
+
+	function declareDeposit(address from, uint256 value) public {
+		coin.verifyOnlyCoin(msg.sender);
+		totalDeposit += value;
+		emit DepositFund(from, value, totalDeposit);
+	}
 
 	// claim interest via can activate
 }
