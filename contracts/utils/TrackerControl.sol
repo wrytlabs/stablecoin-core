@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 contract TrackerControl {
+	using SafeERC20 for IERC20;
+
 	uint8 private constant TIME_RESOLUTION_BITS = 20;
 
 	uint32 public QUORUM; // @dev: quorum in PPM, for canActivate
@@ -17,14 +20,29 @@ contract TrackerControl {
 
 	// ---------------------------------------------------------------------------------------
 
-	error NotCoin();
-	error MinHoldingDuration();
-	error NotQualified();
+	mapping(address owner => address delegate) public delegates;
+	mapping(address holder => uint64 timestamp) private trackerAnchor;
 
 	// ---------------------------------------------------------------------------------------
 
-	mapping(address owner => address delegate) public delegates;
-	mapping(address holder => uint64 timestamp) private trackerAnchor;
+	error NotCoin();
+	error NotPassedDuration();
+	error NotQualified();
+	error NotAvailable();
+
+	// ---------------------------------------------------------------------------------------
+
+	modifier _verifyOnlyCoin() {
+		if (checkOnlyCoin(msg.sender) == false) revert NotCoin();
+		_;
+	}
+
+	function checkOnlyCoin(address toCheck) public view returns (bool) {
+		if (toCheck != address(coin)) return false;
+		return true;
+	}
+
+	function verifyOnlyCoin(address toCheck) public view _verifyOnlyCoin {}
 
 	// ---------------------------------------------------------------------------------------
 
@@ -50,8 +68,7 @@ contract TrackerControl {
 		return (1 ether * tracks(holder)) / totalTracks();
 	}
 
-	function _update(address from, address to, uint256 amount) public {
-		if (msg.sender != address(coin)) revert NotCoin();
+	function _update(address from, address to, uint256 amount) public _verifyOnlyCoin {
 		uint256 roundingLoss = _adjustRecipientTracksAnchor(to, amount);
 		_adjustTotalTracks(from, amount, roundingLoss);
 	}
@@ -61,21 +78,20 @@ contract TrackerControl {
 	}
 
 	function _adjustRecipientTracksAnchor(address to, uint256 amount) internal returns (uint256) {
-		if (to != address(0x0)) {
-			uint256 recipient = tracks(to); // for example 21 if 7 shares were held for 3 seconds
-			uint256 newbalance = coin.balanceOf(to) + amount; // for example 11 if 4 shares are added
-			// new example anchor is only 21 / 11 = 1 second in the past
-			trackerAnchor[to] = uint64(_anchorTime() - recipient / newbalance);
-			return recipient % newbalance; // we have lost 21 % 11 = 10 tracks
+		if (to == address(0)) {
+			return 0; // address zero does not matter
 		} else {
-			return 0; // vote anchor of null address does not matter
+			uint256 tracked = tracks(to); // for example 21 if 7 shares were held for 3 seconds
+			uint256 newBalance = coin.balanceOf(to) + amount; // for example 11 if 4 shares are added
+			trackerAnchor[to] = uint64(_anchorTime() - tracked / newBalance); // anchor is 21 / 11 = 1 second in the past
+			return tracked % newBalance; // we have lost 21 % 11 = 10 tracks
 		}
 	}
 
 	function _adjustTotalTracks(address from, uint256 amount, uint256 roundingLoss) internal {
 		uint64 time = _anchorTime();
-		uint256 lostVotes = from == address(0x0) ? 0 : (time - trackerAnchor[from]) * amount;
-		totalTracksAtAnchor = uint192(totalTracks() - roundingLoss - lostVotes);
+		uint256 lostTracks = from == address(0) ? 0 : (time - trackerAnchor[from]) * amount;
+		totalTracksAtAnchor = uint192(totalTracks() - lostTracks - roundingLoss);
 		totalTracksAnchorTime = time;
 	}
 
@@ -85,23 +101,23 @@ contract TrackerControl {
 		return (_anchorTime() - trackerAnchor[holder]) >> TIME_RESOLUTION_BITS;
 	}
 
-	function verifyHoldingDuration(address holder) public view returns (bool) {
+	function checkHoldingDuration(address holder) public view returns (bool) {
 		return _anchorTime() - trackerAnchor[holder] >= MIN_HOLDING_DURATION;
 	}
 
-	function checkHoldingDuration(address holder) public view {
-		if (verifyHoldingDuration(holder) == false) revert MinHoldingDuration();
+	function verifyHoldingDuration(address holder) public view {
+		if (checkHoldingDuration(holder) == false) revert NotPassedDuration();
 	}
 
 	// ---------------------------------------------------------------------------------------
 
-	function verifyCanActivate(address holder, address[] calldata helpers) public view returns (bool) {
+	function checkCanActivate(address holder, address[] calldata helpers) public view returns (bool) {
 		uint256 _tracks = tracksDelegated(holder, helpers);
 		return (_tracks * 1_000_000 > QUORUM * totalTracks());
 	}
 
-	function checkCanActivate(address holder, address[] calldata helpers) public view {
-		if (verifyCanActivate(holder, helpers) == false) revert NotQualified();
+	function verifyCanActivate(address holder, address[] calldata helpers) public view {
+		if (checkCanActivate(holder, helpers) == false) revert NotQualified();
 	}
 
 	function tracksDelegated(address sender, address[] calldata helpers) public view returns (uint256) {
@@ -138,6 +154,36 @@ contract TrackerControl {
 				prevAddress = helpers[i];
 			}
 			return true;
+		}
+	}
+
+	// ---------------------------------------------------------------------------------------
+
+	// "To respectfully reduce the impact of others, first ensure that you tread lightly yourself."
+
+	// Ensure that you can reduce others' tracks by respectfully reducing your own as well.
+	// This mechanism potentially gives full control over the system to whoever has 51% of the votes.
+
+	function reduceTracks(address[] calldata targets, uint256 tracksToDestroy) external {
+		uint256 budget = _reduceTracks(msg.sender, tracksToDestroy);
+		uint256 destroyedTracks = 0;
+		for (uint256 i = 0; i < targets.length && destroyedTracks < budget; i++) {
+			destroyedTracks += _reduceTracks(targets[i], budget - destroyedTracks);
+		}
+		if (destroyedTracks == 0) revert NotAvailable();
+		totalTracksAtAnchor = uint192(totalTracks() - destroyedTracks - budget);
+		totalTracksAnchorTime = _anchorTime();
+	}
+
+	function _reduceTracks(address target, uint256 amount) internal returns (uint256) {
+		uint256 votesBefore = tracks(target);
+		if (amount >= votesBefore) {
+			amount = votesBefore;
+			trackerAnchor[target] = _anchorTime();
+			return votesBefore;
+		} else {
+			trackerAnchor[target] = uint64(_anchorTime() - (votesBefore - amount) / coin.balanceOf(target));
+			return votesBefore - tracks(target);
 		}
 	}
 }

@@ -10,4 +10,6 @@ contract Savings is TrackerControl {
 		uint32 _quorum,
 		uint8 _days
 	) TrackerControl(_coin, _name, _quorum, _days) {}
+
+	// claim interest via can activate
 }
