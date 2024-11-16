@@ -7,7 +7,6 @@ import '../utils/interfaces/IAccessControl.sol';
 
 import '../Governance.sol';
 import '../Savings.sol';
-import '../Community.sol';
 
 interface IStablecoin is IERC20, IAccessControl {
 	// Constants
@@ -18,33 +17,19 @@ interface IStablecoin is IERC20, IAccessControl {
 
 	function savings() external view returns (Savings);
 
-	function funds() external view returns (Community);
-
 	// State variables
-	function totalProfit() external view returns (uint256);
+	function totalInflow() external view returns (uint256);
 
-	function totalLoss() external view returns (uint256);
+	function totalOutflow() external view returns (uint256);
 
-	function fundDistribution() external view returns (uint256);
-
-	function fundMinSize() external view returns (uint256);
-
-	function nextFundDistribution() external view returns (uint256);
-
-	function nextFundMinSize() external view returns (uint256);
-
-	function nextFundCanActivate() external view returns (uint256);
+	function totalOutflowCovered() external view returns (uint256);
 
 	// Core functions
 	function proposeMinter(address minter, bool activate, string calldata message, address[] calldata helpers) external;
 
 	function mint(address account, uint256 value) external;
 
-	function proposeFundDistribution(uint256 distribution, uint256 size, address[] calldata helpers) external;
+	function declareInflow(address from, uint256 value) external;
 
-	function activateFundDistribution() external;
-
-	function declareProfit(address from, uint256 value) external;
-
-	function declareLoss(address to, uint256 value) external;
+	function declareOutflow(address to, uint256 value) external;
 }

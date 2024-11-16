@@ -7,12 +7,9 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
 import './interfaces/IStablecoin.sol';
 
-import './utils/interfaces/IAccessControl.sol';
 import './utils/AccessControl.sol';
-
 import './Governance.sol';
 import './Savings.sol';
-import './Community.sol';
 
 // TODO: ERC20, ERC20Permit, ERC721, ERC...
 contract Stablecoin is IStablecoin, ERC20, AccessControl {
@@ -25,16 +22,10 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 
 	Governance public immutable votes;
 	Savings public immutable savings;
-	Community public immutable funds;
 
-	uint256 public totalProfit;
-	uint256 public totalLoss;
-
-	uint256 public fundDistribution = 5_000; // 5% in PPM
-	uint256 public fundMinSize = 1_000 ether;
-	uint256 public nextFundDistribution = fundDistribution;
-	uint256 public nextFundMinSize = fundMinSize;
-	uint256 public nextFundCanActivate = block.timestamp;
+	uint256 public totalInflow;
+	uint256 public totalOutflow;
+	uint256 public totalOutflowCovered;
 
 	// ---------------------------------------------------------------------------------------
 	event ProposeMinter(
@@ -53,17 +44,14 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 		uint256 activation,
 		uint256 expiration
 	);
-	event ProposeFund(address indexed proposer, uint256 distribution, uint256 minSize, uint256 canActivate);
-	event ActivateFund(address indexed sender, uint256 distribution, uint256 minSize);
-	event DeclareProfit(address indexed sender, uint256 value, uint256 total);
-	event DeclareLoss(address indexed sender, uint256 value, uint256 total);
+	event DeclareInflow(address indexed sender, uint256 value, uint256 total);
+	event DeclareOutflow(address indexed sender, uint256 value, uint256 covered, uint256 total);
 
 	// ---------------------------------------------------------------------------------------
 
-	constructor() ERC20('Stablecoin', 'STBL') {
+	constructor(string memory name_, string memory symbol_) ERC20(name_, symbol_) {
 		votes = new Governance(this, 'Votes', 20_000, 90);
 		savings = new Savings(this, 'Savings', 0, 3);
-		funds = new Community(this);
 	}
 
 	function _setMinter(address to, string calldata message) public {
@@ -143,57 +131,30 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 
 	// ---------------------------------------------------------------------------------------
 
-	function proposeFundDistribution(uint256 distribution, uint256 size, address[] calldata helpers) public {
-		votes.verifyCanActivate(msg.sender, helpers);
+	function declareInflow(address from, uint256 value) public _verifyMover {
+		if (value == 0) revert NoChange(); // @dev: might change to pass without reverting
 
-		if (fundDistribution == distribution && fundMinSize == size) revert NoChange();
+		_transfer(from, address(savings), value);
+		savings.declareDeposit(from, value);
 
-		nextFundDistribution = distribution;
-		nextFundMinSize = size;
-		nextFundCanActivate = block.timestamp + CAN_ACTIVATE_DELAY;
-
-		emit ProposeFund(msg.sender, distribution, size, nextFundCanActivate);
+		totalInflow += value;
+		emit DeclareInflow(from, value, totalInflow);
 	}
 
-	function activateFundDistribution() public {
-		if (nextFundCanActivate > block.timestamp) revert NotActive();
-		if (fundDistribution == nextFundDistribution && fundMinSize == nextFundMinSize) revert NoChange();
+	function declareOutflow(address to, uint256 value) public _verifyMinter {
+		if (value == 0) revert NoChange(); // @dev: might change to pass without reverting
 
-		fundDistribution = nextFundDistribution;
-		fundMinSize = nextFundMinSize;
+		uint256 saved = balanceOf(address(savings));
 
-		emit ActivateFund(msg.sender, fundDistribution, fundMinSize);
-	}
-
-	// ---------------------------------------------------------------------------------------
-
-	function declareProfit(address from, uint256 value) public _verifyMover {
-		if (value == 0) revert NoChange();
-
-		uint256 balanceCommunity = balanceOf(address(funds));
-
-		uint256 distBalance = (totalSupply() * fundDistribution) / 1_000_000;
-		uint256 missingMinBalance = balanceCommunity < fundMinSize ? fundMinSize - balanceCommunity : 0;
-		uint256 missingDistBalance = balanceCommunity < distBalance ? distBalance - balanceCommunity : 0;
-		uint256 maxDistribution = Math.max(missingMinBalance, missingDistBalance);
-
-		if (maxDistribution > 0) {
-			_transfer(from, address(funds), Math.min(value, maxDistribution));
-			funds.declareDeposit(from, Math.min(value, maxDistribution));
+		if (saved >= value) {
+			_transfer(address(savings), to, value);
+		} else {
+			_transfer(address(savings), to, saved);
+			_mint(to, value - saved);
 		}
 
-		if (value > maxDistribution) {
-			_transfer(from, address(savings), value - maxDistribution);
-			savings.declareDeposit(from, value - maxDistribution);
-		}
-
-		totalProfit += value;
-		emit DeclareProfit(from, value, totalProfit);
-	}
-
-	function declareLoss(address to, uint256 value) public _verifyMinter {
-		_mint(to, value);
-		totalLoss += value;
-		emit DeclareLoss(to, value, totalLoss);
+		totalOutflow += value;
+		totalOutflowCovered += saved;
+		emit DeclareOutflow(to, value, saved, totalOutflow);
 	}
 }
