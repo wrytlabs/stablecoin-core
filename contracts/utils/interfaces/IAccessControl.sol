@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../Errors.sol';
+import '../../interfaces/IErrors.sol';
 
-interface IAccessControl is Errors {
+interface IAccessControl is IErrors {
 	// View functions
 	function isMinter(address) external view returns (bool);
 

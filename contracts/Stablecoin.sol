@@ -32,9 +32,9 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 
 	uint256 public fundDistribution = 5_000; // 5% in PPM
 	uint256 public fundMinSize = 1_000 ether;
-	uint256 public nextFundDistribution;
-	uint256 public nextFundMinSize;
-	uint256 public nextFundCanActivate;
+	uint256 public nextFundDistribution = fundDistribution;
+	uint256 public nextFundMinSize = fundMinSize;
+	uint256 public nextFundCanActivate = block.timestamp;
 
 	// ---------------------------------------------------------------------------------------
 	event ProposeMinter(
@@ -146,7 +146,7 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	function proposeFundDistribution(uint256 distribution, uint256 size, address[] calldata helpers) public {
 		votes.verifyCanActivate(msg.sender, helpers);
 
-		if (fundDistribution == distribution || fundMinSize == size) revert NoChange();
+		if (fundDistribution == distribution && fundMinSize == size) revert NoChange();
 
 		nextFundDistribution = distribution;
 		nextFundMinSize = size;
@@ -156,7 +156,7 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	}
 
 	function activateFundDistribution() public {
-		if (nextFundCanActivate < block.timestamp) revert NotActive();
+		if (nextFundCanActivate > block.timestamp) revert NotActive();
 		if (fundDistribution == nextFundDistribution && fundMinSize == nextFundMinSize) revert NoChange();
 
 		fundDistribution = nextFundDistribution;
@@ -178,13 +178,13 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 		uint256 maxDistribution = Math.max(missingMinBalance, missingDistBalance);
 
 		if (maxDistribution > 0) {
-			_transfer(from, address(funds), maxDistribution);
-			funds.declareDeposit(from, maxDistribution);
+			_transfer(from, address(funds), Math.min(value, maxDistribution));
+			funds.declareDeposit(from, Math.min(value, maxDistribution));
 		}
 
-		if (value - maxDistribution > 0) {
+		if (value > maxDistribution) {
 			_transfer(from, address(savings), value - maxDistribution);
-			savings.declareDeposit(from, maxDistribution);
+			savings.declareDeposit(from, value - maxDistribution);
 		}
 
 		totalProfit += value;

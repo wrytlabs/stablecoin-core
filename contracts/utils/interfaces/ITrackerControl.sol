@@ -3,10 +3,10 @@ pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
-import '../Errors.sol';
+import '../../interfaces/IErrors.sol';
 import '../../interfaces/IStablecoin.sol';
 
-interface ITrackerControl is Errors {
+interface ITrackerControl is IErrors {
 	// View functions
 	function QUORUM() external view returns (uint32);
 

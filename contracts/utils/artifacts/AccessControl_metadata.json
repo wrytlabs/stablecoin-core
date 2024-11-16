@@ -1,0 +1,383 @@
+{
+	"compiler": {
+		"version": "0.8.20+commit.a1b79de6"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "caller",
+						"type": "address"
+					}
+				],
+				"name": "MinterExpired",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "caller",
+						"type": "address"
+					}
+				],
+				"name": "MoverExpired",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NoChange",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NotActive",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NotAvailable",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NotCoin",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "NotMinter",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "NotMover",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NotPassedDuration",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NotQualified",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NotServed",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "toCheck",
+						"type": "address"
+					}
+				],
+				"name": "checkMinter",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "toCheck",
+						"type": "address"
+					}
+				],
+				"name": "checkMinterMover",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "toCheck",
+						"type": "address"
+					}
+				],
+				"name": "checkMover",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "toCheck",
+						"type": "address"
+					}
+				],
+				"name": "checkOnlyCoin",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "isMinter",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "isMover",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "minterActivation",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "minterExpiration",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "moverActivation",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "moverExpiration",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "minter",
+						"type": "address"
+					}
+				],
+				"name": "verifyMinter",
+				"outputs": [],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "minter",
+						"type": "address"
+					}
+				],
+				"name": "verifyMinterMover",
+				"outputs": [],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "minter",
+						"type": "address"
+					}
+				],
+				"name": "verifyMover",
+				"outputs": [],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "toCheck",
+						"type": "address"
+					}
+				],
+				"name": "verifyOnlyCoin",
+				"outputs": [],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/utils/AccessControl.sol": "AccessControl"
+		},
+		"evmVersion": "shanghai",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/utils/AccessControl.sol": {
+			"keccak256": "0xcf114bfe61be216853531d480de376f9a7d004f6b42badf261ec3389c0ca80ff",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://4987291f6e847fc17eeed8ca016d1660682c8839a9f930b33a969577eac26ec5",
+				"dweb:/ipfs/QmT41w4T6288FhNJXQqsGGzAftsnWUxfBqLXfY6PCJDiST"
+			]
+		},
+		"contracts/utils/Errors.sol": {
+			"keccak256": "0x0a7b88cf37ee98987bc7eee649ebf4619ed5ba9248d285c2faf172e0d7a90eaf",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://18a0aa4bfa7638098cde6c3d326a6f7dd2fc3140bb3ec8af04979b835449fef4",
+				"dweb:/ipfs/QmcDLzR953fRn5bfza4EfNMGembgwdUQzz9vPnkSVpUVjW"
+			]
+		},
+		"contracts/utils/interfaces/IAccessControl.sol": {
+			"keccak256": "0xdc139f2155748845d69432becf5000f5d6c04c1efcc97d7a7f97f5a8b9703b0f",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://1d9645b38ad95a009ed7c1a9b8667803561a3ab66ba19a269934ca89170011fd",
+				"dweb:/ipfs/QmWh4prEsidPfuVXTzHdepeHHVMmwmdx1Bg9wAQGe3UuzD"
+			]
+		}
+	},
+	"version": 1
+}

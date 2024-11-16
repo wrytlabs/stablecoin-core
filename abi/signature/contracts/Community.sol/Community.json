@@ -1,9 +1,0 @@
-[
-    "constructor(address)",
-    "event DepositFund(address indexed,uint256,uint256)",
-    "function coin() view returns (address)",
-    "function declareDeposit(address,uint256)",
-    "function totalAllocate() view returns (uint256)",
-    "function totalAllocateClaim() view returns (uint256)",
-    "function totalDeposit() view returns (uint256)"
-]

@@ -4,9 +4,9 @@ pragma solidity ^0.8.20;
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 
 import '../Stablecoin.sol';
-import '../utils/Errors.sol';
+import './IErrors.sol';
 
-interface IBridgeManager is Errors {
+interface IBridgeManager is IErrors {
 	struct Guard {
 		address collateral;
 		uint256 mintable;
