@@ -33,18 +33,7 @@
                 "type": "address"
             }
         ],
-        "name": "MinterExpired",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "caller",
-                "type": "address"
-            }
-        ],
-        "name": "MoverExpired",
+        "name": "ModuleExpired",
         "type": "error"
     },
     {
@@ -75,18 +64,7 @@
                 "type": "address"
             }
         ],
-        "name": "NotMinter",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
-        ],
-        "name": "NotMover",
+        "name": "NotModule",
         "type": "error"
     },
     {

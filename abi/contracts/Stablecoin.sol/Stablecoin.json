@@ -1,6 +1,17 @@
 [
     {
-        "inputs": [],
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "name_",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "symbol_",
+                "type": "string"
+            }
+        ],
         "stateMutability": "nonpayable",
         "type": "constructor"
     },
@@ -98,18 +109,7 @@
                 "type": "address"
             }
         ],
-        "name": "MinterExpired",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "caller",
-                "type": "address"
-            }
-        ],
-        "name": "MoverExpired",
+        "name": "ModuleExpired",
         "type": "error"
     },
     {
@@ -140,18 +140,7 @@
                 "type": "address"
             }
         ],
-        "name": "NotMinter",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
-        ],
-        "name": "NotMover",
+        "name": "NotModule",
         "type": "error"
     },
     {
@@ -168,31 +157,6 @@
         "inputs": [],
         "name": "NotServed",
         "type": "error"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "sender",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "distribution",
-                "type": "uint256"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "minSize",
-                "type": "uint256"
-            }
-        ],
-        "name": "ActivateFund",
-        "type": "event"
     },
     {
         "anonymous": false,
@@ -241,7 +205,7 @@
                 "type": "uint256"
             }
         ],
-        "name": "DeclareLoss",
+        "name": "DeclareInflow",
         "type": "event"
     },
     {
@@ -262,42 +226,17 @@
             {
                 "indexed": false,
                 "internalType": "uint256",
+                "name": "covered",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
                 "name": "total",
                 "type": "uint256"
             }
         ],
-        "name": "DeclareProfit",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "proposer",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "distribution",
-                "type": "uint256"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "minSize",
-                "type": "uint256"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "canActivate",
-                "type": "uint256"
-            }
-        ],
-        "name": "ProposeFund",
+        "name": "DeclareOutflow",
         "type": "event"
     },
     {
@@ -312,7 +251,7 @@
             {
                 "indexed": true,
                 "internalType": "address",
-                "name": "minter",
+                "name": "module",
                 "type": "address"
             },
             {
@@ -324,7 +263,7 @@
             {
                 "indexed": false,
                 "internalType": "bool",
-                "name": "isMinter",
+                "name": "isModule",
                 "type": "bool"
             },
             {
@@ -340,50 +279,7 @@
                 "type": "uint256"
             }
         ],
-        "name": "ProposeMinter",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "proposer",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "mover",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "string",
-                "name": "message",
-                "type": "string"
-            },
-            {
-                "indexed": false,
-                "internalType": "bool",
-                "name": "isMover",
-                "type": "bool"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "activation",
-                "type": "uint256"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "expiration",
-                "type": "uint256"
-            }
-        ],
-        "name": "ProposeMover",
+        "name": "ModuleUpdated",
         "type": "event"
     },
     {
@@ -448,49 +344,6 @@
             }
         ],
         "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            },
-            {
-                "internalType": "string",
-                "name": "message",
-                "type": "string"
-            }
-        ],
-        "name": "_setMinter",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            },
-            {
-                "internalType": "string",
-                "name": "message",
-                "type": "string"
-            }
-        ],
-        "name": "_setMover",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "activateFundDistribution",
-        "outputs": [],
-        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -568,45 +421,7 @@
                 "type": "address"
             }
         ],
-        "name": "checkMinter",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "toCheck",
-                "type": "address"
-            }
-        ],
-        "name": "checkMinterMover",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "toCheck",
-                "type": "address"
-            }
-        ],
-        "name": "checkMover",
+        "name": "checkModule",
         "outputs": [
             {
                 "internalType": "bool",
@@ -637,6 +452,34 @@
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "module",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "activate",
+                "type": "bool"
+            },
+            {
+                "internalType": "string",
+                "name": "message",
+                "type": "string"
+            },
+            {
+                "internalType": "address[]",
+                "name": "helpers",
+                "type": "address[]"
+            }
+        ],
+        "name": "configModule",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "decimals",
         "outputs": [
@@ -653,24 +496,6 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "to",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "value",
-                "type": "uint256"
-            }
-        ],
-        "name": "declareLoss",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
                 "name": "from",
                 "type": "address"
             },
@@ -680,48 +505,27 @@
                 "type": "uint256"
             }
         ],
-        "name": "declareProfit",
+        "name": "declareInflow",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "fundDistribution",
-        "outputs": [
+        "inputs": [
             {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "fundMinSize",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "funds",
-        "outputs": [
-            {
-                "internalType": "contract Community",
-                "name": "",
+                "internalType": "address",
+                "name": "to",
                 "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
             }
         ],
-        "stateMutability": "view",
+        "name": "declareOutflow",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -732,26 +536,7 @@
                 "type": "address"
             }
         ],
-        "name": "isMinter",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "name": "isMover",
+        "name": "isModule",
         "outputs": [
             {
                 "internalType": "bool",
@@ -788,7 +573,7 @@
                 "type": "address"
             }
         ],
-        "name": "minterActivation",
+        "name": "moduleActivation",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -807,45 +592,7 @@
                 "type": "address"
             }
         ],
-        "name": "minterExpiration",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "name": "moverActivation",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "name": "moverExpiration",
+        "name": "moduleExpiration",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -871,96 +618,6 @@
     },
     {
         "inputs": [],
-        "name": "nextFundCanActivate",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "nextFundDistribution",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "nextFundMinSize",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "distribution",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "size",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address[]",
-                "name": "helpers",
-                "type": "address[]"
-            }
-        ],
-        "name": "proposeFundDistribution",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "minter",
-                "type": "address"
-            },
-            {
-                "internalType": "bool",
-                "name": "activate",
-                "type": "bool"
-            },
-            {
-                "internalType": "string",
-                "name": "message",
-                "type": "string"
-            },
-            {
-                "internalType": "address[]",
-                "name": "helpers",
-                "type": "address[]"
-            }
-        ],
-        "name": "proposeMinter",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
         "name": "savings",
         "outputs": [
             {
@@ -970,6 +627,24 @@
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "string",
+                "name": "message",
+                "type": "string"
+            }
+        ],
+        "name": "setModule",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -987,7 +662,7 @@
     },
     {
         "inputs": [],
-        "name": "totalLoss",
+        "name": "totalInflow",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -1000,7 +675,20 @@
     },
     {
         "inputs": [],
-        "name": "totalProfit",
+        "name": "totalOutflow",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "totalOutflowCovered",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -1081,37 +769,11 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "minter",
+                "name": "module",
                 "type": "address"
             }
         ],
-        "name": "verifyMinter",
-        "outputs": [],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "minter",
-                "type": "address"
-            }
-        ],
-        "name": "verifyMinterMover",
-        "outputs": [],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "minter",
-                "type": "address"
-            }
-        ],
-        "name": "verifyMover",
+        "name": "verifyModule",
         "outputs": [],
         "stateMutability": "view",
         "type": "function"

@@ -16,10 +16,6 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	using Math for uint256;
 	using SafeERC20 for ERC20;
 
-	uint256 public constant CAN_ACTIVATE_DELAY = 30 days; // 1 month
-	uint256 public constant ACTIVATION_DURATION = 2 * 365 days; // 2 years
-	uint256 public constant ACTIVATION_MULTIPLIER = 3; // extend 3x time served
-
 	Governance public immutable votes;
 	Savings public immutable savings;
 
@@ -28,22 +24,7 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	uint256 public totalOutflowCovered;
 
 	// ---------------------------------------------------------------------------------------
-	event ProposeMinter(
-		address indexed proposer,
-		address indexed minter,
-		string message,
-		bool isMinter,
-		uint256 activation,
-		uint256 expiration
-	);
-	event ProposeMover(
-		address indexed proposer,
-		address indexed mover,
-		string message,
-		bool isMover,
-		uint256 activation,
-		uint256 expiration
-	);
+
 	event DeclareInflow(address indexed sender, uint256 value, uint256 total);
 	event DeclareOutflow(address indexed sender, uint256 value, uint256 covered, uint256 total);
 
@@ -54,20 +35,17 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 		savings = new Savings(this, 'Savings', 0, 3);
 	}
 
-	function _setMinter(address to, string calldata message) public {
-		if (totalSupply() > 0) revert NoChange();
-		isMinter[to] = true;
-		minterActivation[to] = block.timestamp;
-		minterExpiration[to] = type(uint256).max;
-		emit ProposeMinter(msg.sender, to, message, true, block.timestamp, type(uint256).max);
+	function setModule(address to, string calldata message) public {
+		if (totalSupply() > 0) revert NotAvailable();
+		isModule[to] = true;
+		moduleActivation[to] = block.timestamp;
+		moduleExpiration[to] = type(uint256).max;
+		emit ModuleUpdated(msg.sender, to, message, true, block.timestamp, type(uint256).max);
 	}
 
-	function _setMover(address to, string calldata message) public {
-		if (totalSupply() > 0) revert NoChange();
-		isMover[to] = true;
-		moverActivation[to] = block.timestamp;
-		moverExpiration[to] = type(uint256).max;
-		emit ProposeMover(msg.sender, to, message, true, block.timestamp, type(uint256).max);
+	function configModule(address module, bool activate, string calldata message, address[] calldata helpers) public {
+		votes.checkCanActivate(msg.sender, helpers);
+		_configModule(module, activate, message);
 	}
 
 	// ---------------------------------------------------------------------------------------
@@ -84,54 +62,17 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	}
 
 	function allowance(address owner, address spender) public view virtual override(ERC20, IERC20) returns (uint256) {
-		if (checkMover(spender) == true) return type(uint256).max;
+		if (checkModule(spender) == true) return type(uint256).max;
 		return super.allowance(owner, spender);
 	}
 
-	// ---------------------------------------------------------------------------------------
-	// TODO: move part of logic to AccessControl. do same for mover
-	function proposeMinter(address minter, bool activate, string calldata message, address[] calldata helpers) public {
-		votes.checkCanActivate(msg.sender, helpers);
-
-		// extend expiration, if already passed
-		if (activate && checkMinter(minter) == true) {
-			uint256 duration = minterExpiration[minter] - minterActivation[minter]; // approved duration
-			uint256 active = block.timestamp - minterActivation[minter]; // time active
-			if (active * 2 <= duration) revert NotServed(); // serve more then 50% of your duration
-			minterExpiration[minter] = block.timestamp + ACTIVATION_MULTIPLIER * active; // extend relative
-		}
-		// activate with delay or after expiration
-		else if (activate && checkMinter(minter) == false) {
-			isMinter[minter] = true;
-			minterActivation[minter] = block.timestamp + CAN_ACTIVATE_DELAY;
-			minterExpiration[minter] = block.timestamp + CAN_ACTIVATE_DELAY + ACTIVATION_DURATION;
-		}
-		// expire with delay
-		else if (!activate && checkMinter(minter) == true) {
-			minterExpiration[minter] = block.timestamp + CAN_ACTIVATE_DELAY;
-		}
-		// could revert a proposal
-		else if (!activate && checkMinter(minter) == false) {
-			minterExpiration[minter] = minterActivation[minter];
-		}
-
-		emit ProposeMinter(
-			msg.sender,
-			minter,
-			message,
-			isMinter[minter],
-			minterActivation[minter],
-			minterExpiration[minter]
-		);
-	}
-
-	function mint(address account, uint256 value) public _verifyMinter {
+	function mint(address account, uint256 value) public _verifyModule {
 		_mint(account, value);
 	}
 
 	// ---------------------------------------------------------------------------------------
 
-	function declareInflow(address from, uint256 value) public _verifyMover {
+	function declareInflow(address from, uint256 value) public _verifyModule {
 		if (value == 0) revert NoChange(); // @dev: might change to pass without reverting
 
 		_transfer(from, address(savings), value);
@@ -141,7 +82,7 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 		emit DeclareInflow(from, value, totalInflow);
 	}
 
-	function declareOutflow(address to, uint256 value) public _verifyMinter {
+	function declareOutflow(address to, uint256 value) public _verifyModule {
 		if (value == 0) revert NoChange(); // @dev: might change to pass without reverting
 
 		uint256 saved = balanceOf(address(savings));

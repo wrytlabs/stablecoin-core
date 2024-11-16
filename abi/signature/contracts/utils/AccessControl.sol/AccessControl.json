@@ -1,0 +1,22 @@
+[
+    "error ModuleExpired(address)",
+    "error NoChange()",
+    "error NotActive()",
+    "error NotAvailable()",
+    "error NotCoin()",
+    "error NotModule(address)",
+    "error NotPassedDuration()",
+    "error NotQualified()",
+    "error NotServed()",
+    "event ModuleUpdated(address indexed,address indexed,string,bool,uint256,uint256)",
+    "function ACTIVATION_DURATION() view returns (uint256)",
+    "function ACTIVATION_MULTIPLIER() view returns (uint256)",
+    "function CAN_ACTIVATE_DELAY() view returns (uint256)",
+    "function checkModule(address) view returns (bool)",
+    "function checkOnlyCoin(address) view returns (bool)",
+    "function isModule(address) view returns (bool)",
+    "function moduleActivation(address) view returns (uint256)",
+    "function moduleExpiration(address) view returns (uint256)",
+    "function verifyModule(address) view",
+    "function verifyOnlyCoin(address) view"
+]

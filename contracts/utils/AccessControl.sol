@@ -4,13 +4,24 @@ pragma solidity ^0.8.20;
 import './interfaces/IAccessControl.sol';
 
 abstract contract AccessControl is IAccessControl {
-	mapping(address => bool) public isMinter;
-	mapping(address => uint256) public minterActivation;
-	mapping(address => uint256) public minterExpiration;
+	uint256 public constant CAN_ACTIVATE_DELAY = 30 days; // 1 month
+	uint256 public constant ACTIVATION_DURATION = 2 * 365 days; // 2 years
+	uint256 public constant ACTIVATION_MULTIPLIER = 3; // extend 3x time served
 
-	mapping(address => bool) public isMover;
-	mapping(address => uint256) public moverActivation;
-	mapping(address => uint256) public moverExpiration;
+	mapping(address => bool) public isModule;
+	mapping(address => uint256) public moduleActivation;
+	mapping(address => uint256) public moduleExpiration;
+
+	// ---------------------------------------------------------------------------------------
+
+	event ModuleUpdated(
+		address indexed proposer,
+		address indexed module,
+		string message,
+		bool isModule,
+		uint256 activation,
+		uint256 expiration
+	);
 
 	// ---------------------------------------------------------------------------------------
 
@@ -19,19 +30,8 @@ abstract contract AccessControl is IAccessControl {
 		_;
 	}
 
-	modifier _verifyMinter() {
-		if (checkMinter(msg.sender) == false) revert NotMinter(msg.sender);
-		_;
-	}
-
-	modifier _verifyMover() {
-		if (checkMover(msg.sender) == false) revert NotMover(msg.sender);
-		_;
-	}
-
-	modifier _verifyMinterMover() {
-		if (checkMinter(msg.sender) == false) revert NotMinter(msg.sender);
-		if (checkMover(msg.sender) == false) revert NotMover(msg.sender);
+	modifier _verifyModule() {
+		if (checkModule(msg.sender) == false) revert NotModule(msg.sender);
 		_;
 	}
 
@@ -42,25 +42,11 @@ abstract contract AccessControl is IAccessControl {
 		return true;
 	}
 
-	function checkMinter(address toCheck) public view returns (bool) {
-		if (isMinter[toCheck] == false) return false;
-		if (minterActivation[toCheck] == 0) return false;
-		if (minterActivation[toCheck] > block.timestamp) return false;
-		if (minterExpiration[toCheck] <= block.timestamp) return false;
-		return true;
-	}
-
-	function checkMover(address toCheck) public view returns (bool) {
-		if (isMover[toCheck] == false) return false;
-		if (moverActivation[toCheck] == 0) return false;
-		if (moverActivation[toCheck] > block.timestamp) return false;
-		if (moverExpiration[toCheck] <= block.timestamp) return false;
-		return true;
-	}
-
-	function checkMinterMover(address toCheck) public view returns (bool) {
-		if (checkMinter(toCheck) == false) return false;
-		if (checkMover(toCheck) == false) return false;
+	function checkModule(address toCheck) public view returns (bool) {
+		if (isModule[toCheck] == false) return false; // not active or default
+		if (moduleActivation[toCheck] == 0) return false; // default
+		if (moduleActivation[toCheck] > block.timestamp) return false; // must be in the past
+		if (moduleExpiration[toCheck] <= block.timestamp) return false; // must be in the future
 		return true;
 	}
 
@@ -68,17 +54,40 @@ abstract contract AccessControl is IAccessControl {
 
 	function verifyOnlyCoin(address toCheck) public view _verifyOnlyCoin {}
 
-	function verifyMinter(address minter) public view _verifyMinter {}
-
-	function verifyMover(address minter) public view _verifyMover {}
-
-	function verifyMinterMover(address minter) public view _verifyMinterMover {}
+	function verifyModule(address module) public view _verifyModule {}
 
 	// ---------------------------------------------------------------------------------------
 
-	// propose minter
-	// propose mover
+	function _configModule(address module, bool activate, string calldata message) internal {
+		// extend expiration, if already passed
+		if (activate && checkModule(module) == true) {
+			uint256 duration = moduleExpiration[module] - moduleActivation[module]; // approved duration
+			uint256 active = block.timestamp - moduleActivation[module]; // time active
+			if (active * 2 <= duration) revert NotServed(); // serve more then 50% of your duration
+			moduleExpiration[module] = block.timestamp + ACTIVATION_MULTIPLIER * active; // extend relative
+		}
+		// activate with delay or after expiration
+		else if (activate && checkModule(module) == false) {
+			isModule[module] = true;
+			moduleActivation[module] = block.timestamp + CAN_ACTIVATE_DELAY;
+			moduleExpiration[module] = block.timestamp + CAN_ACTIVATE_DELAY + ACTIVATION_DURATION;
+		}
+		// expire with delay
+		else if (!activate && checkModule(module) == true) {
+			moduleExpiration[module] = block.timestamp + CAN_ACTIVATE_DELAY;
+		}
+		// could revert a proposal
+		else if (!activate && checkModule(module) == false) {
+			moduleExpiration[module] = moduleActivation[module];
+		}
 
-	// active minter
-	// active mover
+		emit ModuleUpdated(
+			msg.sender,
+			module,
+			message,
+			isModule[module],
+			moduleActivation[module],
+			moduleExpiration[module]
+		);
+	}
 }

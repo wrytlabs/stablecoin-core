@@ -1,0 +1,18 @@
+[
+    "error ModuleExpired(address)",
+    "error NoChange()",
+    "error NotActive()",
+    "error NotAvailable()",
+    "error NotCoin()",
+    "error NotModule(address)",
+    "error NotPassedDuration()",
+    "error NotQualified()",
+    "error NotServed()",
+    "function CAN_ACTIVATE_DELAY() view returns (uint256)",
+    "function activateGuards(address)",
+    "function byCollateral(address,uint256) view returns (uint256)",
+    "function coin() view returns (address)",
+    "function create(address)",
+    "function proposeGuards(address,uint256,uint256,uint256,address[])",
+    "function tokenCnt() view returns (uint256)"
+]

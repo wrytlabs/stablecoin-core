@@ -1,0 +1,11 @@
+[
+    "error ModuleExpired(address)",
+    "error NoChange()",
+    "error NotActive()",
+    "error NotAvailable()",
+    "error NotCoin()",
+    "error NotModule(address)",
+    "error NotPassedDuration()",
+    "error NotQualified()",
+    "error NotServed()"
+]

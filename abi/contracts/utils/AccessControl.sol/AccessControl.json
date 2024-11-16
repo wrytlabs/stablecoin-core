@@ -7,18 +7,7 @@
                 "type": "address"
             }
         ],
-        "name": "MinterExpired",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "caller",
-                "type": "address"
-            }
-        ],
-        "name": "MoverExpired",
+        "name": "ModuleExpired",
         "type": "error"
     },
     {
@@ -49,18 +38,7 @@
                 "type": "address"
             }
         ],
-        "name": "NotMinter",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
-        ],
-        "name": "NotMover",
+        "name": "NotModule",
         "type": "error"
     },
     {
@@ -79,19 +57,82 @@
         "type": "error"
     },
     {
+        "anonymous": false,
         "inputs": [
             {
+                "indexed": true,
                 "internalType": "address",
-                "name": "toCheck",
+                "name": "proposer",
                 "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "module",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "message",
+                "type": "string"
+            },
+            {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "isModule",
+                "type": "bool"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "activation",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "expiration",
+                "type": "uint256"
             }
         ],
-        "name": "checkMinter",
+        "name": "ModuleUpdated",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "ACTIVATION_DURATION",
         "outputs": [
             {
-                "internalType": "bool",
+                "internalType": "uint256",
                 "name": "",
-                "type": "bool"
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "ACTIVATION_MULTIPLIER",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "CAN_ACTIVATE_DELAY",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
             }
         ],
         "stateMutability": "view",
@@ -105,26 +146,7 @@
                 "type": "address"
             }
         ],
-        "name": "checkMinterMover",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "toCheck",
-                "type": "address"
-            }
-        ],
-        "name": "checkMover",
+        "name": "checkModule",
         "outputs": [
             {
                 "internalType": "bool",
@@ -162,7 +184,7 @@
                 "type": "address"
             }
         ],
-        "name": "isMinter",
+        "name": "isModule",
         "outputs": [
             {
                 "internalType": "bool",
@@ -181,26 +203,7 @@
                 "type": "address"
             }
         ],
-        "name": "isMover",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "name": "minterActivation",
+        "name": "moduleActivation",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -219,7 +222,7 @@
                 "type": "address"
             }
         ],
-        "name": "minterExpiration",
+        "name": "moduleExpiration",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -234,75 +237,11 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "",
+                "name": "module",
                 "type": "address"
             }
         ],
-        "name": "moverActivation",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "name": "moverExpiration",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "minter",
-                "type": "address"
-            }
-        ],
-        "name": "verifyMinter",
-        "outputs": [],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "minter",
-                "type": "address"
-            }
-        ],
-        "name": "verifyMinterMover",
-        "outputs": [],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "minter",
-                "type": "address"
-            }
-        ],
-        "name": "verifyMover",
+        "name": "verifyModule",
         "outputs": [],
         "stateMutability": "view",
         "type": "function"
