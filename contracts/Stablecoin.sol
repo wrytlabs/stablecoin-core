@@ -20,19 +20,32 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	Savings public immutable savings;
 
 	uint256 public totalInflow;
-	uint256 public totalOutflow;
+	uint256 public totalOutflowMinted;
 	uint256 public totalOutflowCovered;
 
 	// ---------------------------------------------------------------------------------------
 
-	event DeclareInflow(address indexed sender, uint256 value, uint256 total);
-	event DeclareOutflow(address indexed sender, uint256 value, uint256 covered, uint256 total);
+	event DeclareInflow(address indexed sender, uint256 value, uint256 totalInflow);
+	event DeclareOutflow(
+		address indexed sender,
+		uint256 value,
+		uint256 covered,
+		uint256 totalInflowCovered,
+		uint256 totalInflowMinted
+	);
 
 	// ---------------------------------------------------------------------------------------
 
-	constructor(string memory name_, string memory symbol_) ERC20(name_, symbol_) {
-		votes = new Governance(this, 'Votes', 20_000, 90);
-		savings = new Savings(this, 'Savings', 0, 3);
+	constructor(
+		string memory name_,
+		string memory symbol_,
+		uint256 votesQuorumPPM_,
+		uint256 votesActivateDays_,
+		uint256 savingsQuorumPPM_,
+		uint256 savingsActivateDays_
+	) ERC20(name_, symbol_) {
+		votes = new Governance(this, 'Votes', votesQuorumPPM_, votesActivateDays_);
+		savings = new Savings(this, 'Savings', savingsQuorumPPM_, savingsActivateDays_);
 	}
 
 	function setModule(address to, string calldata message) public {
@@ -44,7 +57,7 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	}
 
 	function configModule(address module, bool activate, string calldata message, address[] calldata helpers) public {
-		votes.checkCanActivate(msg.sender, helpers);
+		votes.verifyCanActivate(msg.sender, helpers); // FIXME: use verify function
 		_configModule(module, activate, message);
 	}
 
@@ -66,14 +79,15 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 		return super.allowance(owner, spender);
 	}
 
-	function mint(address account, uint256 value) public _verifyModule {
-		_mint(account, value);
+	function mint(address to, uint256 value) public _verifyModule {
+		if (to == address(0) || value == 0) revert NoChange(); // @dev: might change to pass without reverting
+		_mint(to, value);
 	}
 
 	// ---------------------------------------------------------------------------------------
 
 	function declareInflow(address from, uint256 value) public _verifyModule {
-		if (value == 0) revert NoChange(); // @dev: might change to pass without reverting
+		if (from == address(0) || value == 0) revert NoChange(); // @dev: might change to pass without reverting
 
 		_transfer(from, address(savings), value);
 		savings.declareDeposit(from, value);
@@ -83,19 +97,30 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	}
 
 	function declareOutflow(address to, uint256 value) public _verifyModule {
-		if (value == 0) revert NoChange(); // @dev: might change to pass without reverting
+		if (to == address(0) || value == 0) revert NoChange(); // @dev: might change to pass without reverting
 
 		uint256 saved = balanceOf(address(savings));
+		uint256 refund = saved >= value ? value : saved;
 
-		if (saved >= value) {
-			_transfer(address(savings), to, value);
-		} else {
-			_transfer(address(savings), to, saved);
-			_mint(to, value - saved);
+		// @dev: refund from savings
+		if (refund > 0) {
+			_transfer(address(savings), to, refund);
+			totalOutflowCovered += refund;
 		}
 
-		totalOutflow += value;
-		totalOutflowCovered += saved;
-		emit DeclareOutflow(to, value, saved, totalOutflow);
+		// @dev: mint to cover outflow
+		if (value > refund) {
+			unchecked {
+				uint256 missing = value - refund; // Overflow not possible
+			}
+
+			_mint(to, missing); // mint missing
+
+			unchecked {
+				totalOutflowMinted += missing; //  we know fits into a uint256
+			}
+		}
+
+		emit DeclareOutflow(to, value, refund, totalOutflowCovered, totalOutflowMinted);
 	}
 }

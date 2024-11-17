@@ -8,9 +8,10 @@ interface IErrors {
 	error ModuleExpired(address caller);
 
 	// Tracker Control Errors
-	error NotPassedDuration();
+	error NotPassedDuration(uint256);
 	error NotQualified();
 	error NotAvailable();
+	error InsufficientBalance(address, uint256, uint256);
 
 	// Stablecoin Errors
 	error NoChange();

@@ -17,7 +17,7 @@ interface IStablecoin is IERC20, IAccessControl {
 	// State variables
 	function totalInflow() external view returns (uint256);
 
-	function totalOutflow() external view returns (uint256);
+	function totalOutflowMinted() external view returns (uint256);
 
 	function totalOutflowCovered() external view returns (uint256);
 
