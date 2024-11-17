@@ -49,7 +49,7 @@ const config: HardhatUserConfig = {
 	},
 	paths: {
 		sources: './contracts',
-		tests: './test',
+		tests: './tests',
 		cache: './cache',
 		artifacts: './artifacts',
 	},
@@ -71,14 +71,14 @@ const config: HardhatUserConfig = {
 			spacing: 4,
 			pretty: false,
 		},
-		{
-			path: './abi/signature',
-			clear: true,
-			runOnCompile: true,
-			flat: false,
-			spacing: 4,
-			pretty: true,
-		},
+		// {
+		// 	path: './abi/signature',
+		// 	clear: true,
+		// 	runOnCompile: true,
+		// 	flat: false,
+		// 	spacing: 4,
+		// 	pretty: true,
+		// },
 	],
 	mocha: {
 		timeout: 120000,
