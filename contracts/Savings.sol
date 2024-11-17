@@ -35,6 +35,7 @@ contract Savings is ISavings, TrackerControl {
 		totalDeposit += value;
 		emit DepositFund(from, value, totalDeposit);
 	}
+	// @dev: adjust for auto claims or delegated claims, move to savings
 
 	// claim interest via can activate
 }

@@ -127,11 +127,21 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "caller",
+                "name": "",
                 "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
             }
         ],
-        "name": "MinterExpired",
+        "name": "InsufficientBalance",
         "type": "error"
     },
     {
@@ -142,7 +152,7 @@
                 "type": "address"
             }
         ],
-        "name": "MoverExpired",
+        "name": "ModuleExpired",
         "type": "error"
     },
     {
@@ -173,22 +183,17 @@
                 "type": "address"
             }
         ],
-        "name": "NotMinter",
+        "name": "NotModule",
         "type": "error"
     },
     {
         "inputs": [
             {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
             }
         ],
-        "name": "NotMover",
-        "type": "error"
-    },
-    {
-        "inputs": [],
         "name": "NotPassedDuration",
         "type": "error"
     },
@@ -661,11 +666,6 @@
                 "internalType": "uint256",
                 "name": "newRate",
                 "type": "uint256"
-            },
-            {
-                "internalType": "address[]",
-                "name": "helpers",
-                "type": "address[]"
             }
         ],
         "name": "proposeGuards",

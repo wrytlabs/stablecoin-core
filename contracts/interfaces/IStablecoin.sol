@@ -7,44 +7,28 @@ import '../utils/interfaces/IAccessControl.sol';
 
 import '../Governance.sol';
 import '../Savings.sol';
-import '../Community.sol';
 
 interface IStablecoin is IERC20, IAccessControl {
-	// Constants
-	function CAN_ACTIVATE_DELAY() external view returns (uint256);
-
-	// Contract references
+	// State view functions
 	function votes() external view returns (Governance);
 
 	function savings() external view returns (Savings);
 
-	function funds() external view returns (Community);
+	function totalInflow() external view returns (uint256);
 
-	// State variables
-	function totalProfit() external view returns (uint256);
+	function totalOutflowMinted() external view returns (uint256);
 
-	function totalLoss() external view returns (uint256);
+	function totalOutflowCovered() external view returns (uint256);
 
-	function fundDistribution() external view returns (uint256);
+	// Modules functions
+	function setModule(address module, string calldata message) external;
 
-	function fundMinSize() external view returns (uint256);
-
-	function nextFundDistribution() external view returns (uint256);
-
-	function nextFundMinSize() external view returns (uint256);
-
-	function nextFundCanActivate() external view returns (uint256);
+	function configModule(address module, bool activate, string calldata message) external;
 
 	// Core functions
-	function proposeMinter(address minter, bool activate, string calldata message, address[] calldata helpers) external;
-
 	function mint(address account, uint256 value) external;
 
-	function proposeFundDistribution(uint256 distribution, uint256 size, address[] calldata helpers) external;
+	function declareInflow(address from, uint256 value) external;
 
-	function activateFundDistribution() external;
-
-	function declareProfit(address from, uint256 value) external;
-
-	function declareLoss(address to, uint256 value) external;
+	function declareOutflow(address to, uint256 value) external;
 }

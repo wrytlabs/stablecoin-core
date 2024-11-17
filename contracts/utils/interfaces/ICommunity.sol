@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../Stablecoin.sol';
+import '../../Stablecoin.sol';
 
 interface ICommunity {
 	// View functions

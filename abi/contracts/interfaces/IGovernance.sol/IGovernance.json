@@ -3,11 +3,21 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "caller",
+                "name": "",
                 "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
             }
         ],
-        "name": "MinterExpired",
+        "name": "InsufficientBalance",
         "type": "error"
     },
     {
@@ -18,7 +28,7 @@
                 "type": "address"
             }
         ],
-        "name": "MoverExpired",
+        "name": "ModuleExpired",
         "type": "error"
     },
     {
@@ -49,22 +59,17 @@
                 "type": "address"
             }
         ],
-        "name": "NotMinter",
+        "name": "NotModule",
         "type": "error"
     },
     {
         "inputs": [
             {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
             }
         ],
-        "name": "NotMover",
-        "type": "error"
-    },
-    {
-        "inputs": [],
         "name": "NotPassedDuration",
         "type": "error"
     },
@@ -80,7 +85,7 @@
     },
     {
         "inputs": [],
-        "name": "MIN_HOLDING_DURATION",
+        "name": "CAN_ACTIVATE_DELAY",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -93,7 +98,7 @@
     },
     {
         "inputs": [],
-        "name": "QUORUM",
+        "name": "CAN_ACTIVATE_QUORUM",
         "outputs": [
             {
                 "internalType": "uint32",
@@ -133,11 +138,6 @@
                 "internalType": "address",
                 "name": "holder",
                 "type": "address"
-            },
-            {
-                "internalType": "address[]",
-                "name": "helpers",
-                "type": "address[]"
             }
         ],
         "name": "checkCanActivate",
@@ -190,6 +190,25 @@
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "holder",
+                "type": "address"
+            }
+        ],
+        "name": "checkQuorum",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "coin",
         "outputs": [
@@ -206,16 +225,21 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "owner",
+                "name": "holder",
                 "type": "address"
             }
         ],
-        "name": "delegates",
+        "name": "getDelegatedInfo",
         "outputs": [
             {
                 "internalType": "address",
                 "name": "",
                 "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
             }
         ],
         "stateMutability": "view",
@@ -251,24 +275,6 @@
             }
         ],
         "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address[]",
-                "name": "targets",
-                "type": "address[]"
-            },
-            {
-                "internalType": "uint256",
-                "name": "tracksToDestroy",
-                "type": "uint256"
-            }
-        ],
-        "name": "reduceTracks",
-        "outputs": [],
-        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -337,7 +343,26 @@
                 "type": "address"
             }
         ],
-        "name": "tracks",
+        "name": "trackerAnchor",
+        "outputs": [
+            {
+                "internalType": "uint64",
+                "name": "",
+                "type": "uint64"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "holder",
+                "type": "address"
+            }
+        ],
+        "name": "trackerBalance",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -352,16 +377,30 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "sender",
+                "name": "delegater",
                 "type": "address"
-            },
-            {
-                "internalType": "address[]",
-                "name": "helpers",
-                "type": "address[]"
             }
         ],
-        "name": "tracksDelegated",
+        "name": "trackerDelegate",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "holder",
+                "type": "address"
+            }
+        ],
+        "name": "tracksOf",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -378,11 +417,6 @@
                 "internalType": "address",
                 "name": "holder",
                 "type": "address"
-            },
-            {
-                "internalType": "address[]",
-                "name": "helpers",
-                "type": "address[]"
             }
         ],
         "name": "verifyCanActivate",
@@ -412,6 +446,19 @@
             }
         ],
         "name": "verifyOnlyCoin",
+        "outputs": [],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "holder",
+                "type": "address"
+            }
+        ],
+        "name": "verifyQuorum",
         "outputs": [],
         "stateMutability": "view",
         "type": "function"
