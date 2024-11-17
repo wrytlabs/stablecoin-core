@@ -8,9 +8,9 @@ import '../../interfaces/IStablecoin.sol';
 
 interface ITrackerControl is IErrors {
 	// View functions
-	function QUORUM() external view returns (uint32);
+	function CAN_ACTIVATE_QUORUM() external view returns (uint32);
 
-	function MIN_HOLDING_DURATION() external view returns (uint256);
+	function CAN_ACTIVATE_DELAY() external view returns (uint256);
 
 	function coin() external view returns (IStablecoin);
 
@@ -20,7 +20,11 @@ interface ITrackerControl is IErrors {
 
 	function totalTracksAnchorTime() external view returns (uint256);
 
-	function delegates(address owner) external view returns (address);
+	function trackerBalance(address holder) external view returns (uint256);
+
+	function trackerAnchor(address holder) external view returns (uint64);
+
+	function trackerDelegate(address delegater) external view returns (address);
 
 	// Core tracking functions
 	function checkOnlyCoin(address toCheck) external view returns (bool);
@@ -29,26 +33,31 @@ interface ITrackerControl is IErrors {
 
 	function totalTracks() external view returns (uint256);
 
-	function tracks(address holder) external view returns (uint256);
+	function tracksOf(address holder) external view returns (uint256);
 
 	function relativeTracks(address holder) external view returns (uint256);
 
+	function getDelegatedInfo(address holder) external view returns (address, uint256);
+
 	function _update(address from, address to, uint256 amount) external;
 
-	// Duration check functions
+	// Duration checks
 	function holdingDuration(address holder) external view returns (uint256);
 
 	function checkHoldingDuration(address holder) external view returns (bool);
 
 	function verifyHoldingDuration(address holder) external view;
 
-	// Activation check functions
-	function checkCanActivate(address holder, address[] calldata helpers) external view returns (bool);
+	// Quorum checks
+	function checkQuorum(address holder) external view returns (bool);
 
-	function verifyCanActivate(address holder, address[] calldata helpers) external view;
+	function verifyQuorum(address holder) external view;
 
-	function tracksDelegated(address sender, address[] calldata helpers) external view returns (uint256);
+	// Activation checks
+	function checkCanActivate(address holder) external view returns (bool);
+
+	function verifyCanActivate(address holder) external view;
 
 	// Track reduction
-	function reduceTracks(address[] calldata targets, uint256 tracksToDestroy) external;
+	// function reduceTracks(address[] calldata targets, uint256 tracksToDestroy) external;
 }

@@ -39,25 +39,25 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	constructor(
 		string memory name_,
 		string memory symbol_,
-		uint256 votesQuorumPPM_,
-		uint256 votesActivateDays_,
-		uint256 savingsQuorumPPM_,
-		uint256 savingsActivateDays_
+		uint32 votesQuorumPPM_,
+		uint8 votesActivateDays_,
+		uint32 savingsQuorumPPM_,
+		uint8 savingsActivateDays_
 	) ERC20(name_, symbol_) {
 		votes = new Governance(this, 'Votes', votesQuorumPPM_, votesActivateDays_);
 		savings = new Savings(this, 'Savings', savingsQuorumPPM_, savingsActivateDays_);
 	}
 
-	function setModule(address to, string calldata message) public {
+	function setModule(address module, string calldata message) public {
 		if (totalSupply() > 0) revert NotAvailable();
-		isModule[to] = true;
-		moduleActivation[to] = block.timestamp;
-		moduleExpiration[to] = type(uint256).max;
-		emit ModuleUpdated(msg.sender, to, message, true, block.timestamp, type(uint256).max);
+		isModule[module] = true;
+		moduleActivation[module] = block.timestamp;
+		moduleExpiration[module] = type(uint256).max;
+		emit ModuleUpdated(msg.sender, module, message, true, block.timestamp, type(uint256).max);
 	}
 
-	function configModule(address module, bool activate, string calldata message, address[] calldata helpers) public {
-		votes.verifyCanActivate(msg.sender, helpers); // FIXME: use verify function
+	function configModule(address module, bool activate, string calldata message) public {
+		votes.verifyCanActivate(msg.sender);
 		_configModule(module, activate, message);
 	}
 
@@ -110,15 +110,9 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 
 		// @dev: mint to cover outflow
 		if (value > refund) {
-			unchecked {
-				uint256 missing = value - refund; // Overflow not possible
-			}
-
+			uint256 missing = value - refund; // Overflow not possible
 			_mint(to, missing); // mint missing
-
-			unchecked {
-				totalOutflowMinted += missing; //  we know fits into a uint256
-			}
+			totalOutflowMinted += missing; //  we know fits into an uint256
 		}
 
 		emit DeclareOutflow(to, value, refund, totalOutflowCovered, totalOutflowMinted);

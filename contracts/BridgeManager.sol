@@ -48,14 +48,8 @@ contract BridgeManager is IBridgeManager, ERC721 {
 
 	// ---------------------------------------------------------------------------------------
 
-	function proposeGuards(
-		address collateral,
-		uint256 newMintable,
-		uint256 newReserve,
-		uint256 newRate,
-		address[] calldata helpers
-	) public {
-		coin.votes().verifyCanActivate(msg.sender, helpers);
+	function proposeGuards(address collateral, uint256 newMintable, uint256 newReserve, uint256 newRate) public {
+		coin.votes().verifyCanActivate(msg.sender);
 
 		Guard memory guard = guards[collateral];
 		if (guard.mintable == newMintable || guard.reserve == newReserve || guard.rate == newRate) revert NoChange();

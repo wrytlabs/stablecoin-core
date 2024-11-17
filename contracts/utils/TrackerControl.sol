@@ -65,7 +65,7 @@ contract TrackerControl is ITrackerControl {
 
 	// ---------------------------------------------------------------------------------------
 
-	function getDelegatedInfo(address holder) public returns (address, uint256) {
+	function getDelegatedInfo(address holder) public view returns (address, uint256) {
 		address delegatee = trackerDelegate[holder];
 		address delegatedAddr = delegatee == address(0) ? holder : delegatee;
 		return (delegatedAddr, trackerBalance[delegatedAddr]);
@@ -135,7 +135,7 @@ contract TrackerControl is ITrackerControl {
 		return (tracksOf(holder) * 1_000_000) > totalTracks() * CAN_ACTIVATE_QUORUM;
 	}
 
-	function verifyQuorum(address holder) public view returns (bool) {
+	function verifyQuorum(address holder) public view {
 		if (checkQuorum(holder) == false) revert NotQualified();
 	}
 
@@ -154,11 +154,11 @@ contract TrackerControl is ITrackerControl {
 
 	// ---------------------------------------------------------------------------------------
 
-	function delegateFrom(address holder, address to) internal {
-		address delegated = trackerDelegate[holder];
+	// function delegateFrom(address holder, address to) internal {
+	// 	address delegated = trackerDelegate[holder];
 
-		// if (delegated == address(0))
-	}
+	// 	// if (delegated == address(0))
+	// }
 
 	// ---------------------------------------------------------------------------------------
 

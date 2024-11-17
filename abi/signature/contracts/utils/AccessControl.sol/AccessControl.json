@@ -1,11 +1,12 @@
 [
+    "error InsufficientBalance(address,uint256,uint256)",
     "error ModuleExpired(address)",
     "error NoChange()",
     "error NotActive()",
     "error NotAvailable()",
     "error NotCoin()",
     "error NotModule(address)",
-    "error NotPassedDuration()",
+    "error NotPassedDuration(uint256)",
     "error NotQualified()",
     "error NotServed()",
     "event ModuleUpdated(address indexed,address indexed,string,bool,uint256,uint256)",

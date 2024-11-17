@@ -9,12 +9,11 @@ import '../Governance.sol';
 import '../Savings.sol';
 
 interface IStablecoin is IERC20, IAccessControl {
-	// Contract references
+	// State view functions
 	function votes() external view returns (Governance);
 
 	function savings() external view returns (Savings);
 
-	// State variables
 	function totalInflow() external view returns (uint256);
 
 	function totalOutflowMinted() external view returns (uint256);
@@ -22,9 +21,9 @@ interface IStablecoin is IERC20, IAccessControl {
 	function totalOutflowCovered() external view returns (uint256);
 
 	// Modules functions
-	function setModule(address to, string calldata message) external;
+	function setModule(address module, string calldata message) external;
 
-	function configModule(address module, bool activate, string calldata message, address[] calldata helpers) external;
+	function configModule(address module, bool activate, string calldata message) external;
 
 	// Core functions
 	function mint(address account, uint256 value) external;

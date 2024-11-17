@@ -3,6 +3,27 @@
         "inputs": [
             {
                 "internalType": "address",
+                "name": "",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "InsufficientBalance",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
                 "name": "caller",
                 "type": "address"
             }
@@ -42,7 +63,13 @@
         "type": "error"
     },
     {
-        "inputs": [],
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
         "name": "NotPassedDuration",
         "type": "error"
     },
@@ -266,11 +293,6 @@
                 "internalType": "string",
                 "name": "message",
                 "type": "string"
-            },
-            {
-                "internalType": "address[]",
-                "name": "helpers",
-                "type": "address[]"
             }
         ],
         "name": "configModule",
@@ -406,7 +428,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "to",
+                "name": "module",
                 "type": "address"
             },
             {
@@ -435,7 +457,7 @@
     },
     {
         "inputs": [],
-        "name": "totalOutflow",
+        "name": "totalOutflowCovered",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -448,7 +470,7 @@
     },
     {
         "inputs": [],
-        "name": "totalOutflowCovered",
+        "name": "totalOutflowMinted",
         "outputs": [
             {
                 "internalType": "uint256",

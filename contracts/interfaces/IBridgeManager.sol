@@ -36,13 +36,7 @@ interface IBridgeManager is IErrors {
 	function byCollateral(address collateral, uint256 index) external view returns (uint256);
 
 	// State changing functions
-	function proposeGuards(
-		address collateral,
-		uint256 newMintable,
-		uint256 newReserve,
-		uint256 newRate,
-		address[] calldata helpers
-	) external;
+	function proposeGuards(address collateral, uint256 newMintable, uint256 newReserve, uint256 newRate) external;
 
 	function activateGuards(address collateral) external;
 
