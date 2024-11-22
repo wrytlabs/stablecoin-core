@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 import '../../interfaces/IErrors.sol';
-import '../../interfaces/IStablecoin.sol';
 
 interface ITrackerControl is IErrors {
 	// View functions
@@ -12,7 +11,7 @@ interface ITrackerControl is IErrors {
 
 	function CAN_ACTIVATE_DELAY() external view returns (uint256);
 
-	function coin() external view returns (IStablecoin);
+	function coin() external view returns (IERC20);
 
 	function name() external view returns (string memory);
 

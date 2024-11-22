@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 import './interfaces/ITrackerControl.sol';
-import '../interfaces/IStablecoin.sol';
 
 contract TrackerControl is ITrackerControl {
 	uint8 private constant TIME_RESOLUTION_BITS = 20;
@@ -10,7 +9,7 @@ contract TrackerControl is ITrackerControl {
 	uint32 public CAN_ACTIVATE_QUORUM; // @dev: quorum in PPM, for canActivate
 	uint256 public CAN_ACTIVATE_DELAY; // @dev: min duration to canActivate
 
-	IStablecoin public immutable coin;
+	IERC20 public immutable coin;
 	string public name;
 
 	// ---------------------------------------------------------------------------------------
@@ -44,7 +43,7 @@ contract TrackerControl is ITrackerControl {
 	// ---------------------------------------------------------------------------------------
 	// init, set values
 
-	constructor(IStablecoin _coin, string memory _name, uint32 _quorum, uint8 _days) {
+	constructor(IERC20 _coin, string memory _name, uint32 _quorum, uint8 _days) {
 		coin = _coin;
 		name = _name;
 		CAN_ACTIVATE_QUORUM = _quorum; // PPM
@@ -59,7 +58,7 @@ contract TrackerControl is ITrackerControl {
 	}
 
 	function totalTracks() public view returns (uint256) {
-		return totalTracksAtAnchor + coin.totalSupply() * (_anchorTime() - totalTracksAnchorTime);
+		return totalTracksAtAnchor + totalBalance * (_anchorTime() - totalTracksAnchorTime);
 	}
 
 	function tracksOf(address holder) public view returns (uint256) {
@@ -71,18 +70,18 @@ contract TrackerControl is ITrackerControl {
 
 	function delegateInfo(address holder) public view returns (address, uint256) {
 		address delegatee = trackerDelegate[holder];
-		address delegatedAddr = delegatee == address(0) ? holder : delegatee;
-		return (delegatedAddr, trackerBalance[delegatedAddr]);
+		return (trackerDelegate[delegatee], trackerBalance[delegatee]);
 	}
 
 	function _update(address from, address to, uint256 value) public virtual _verifyOnlyCoin {
 		(address delegatedFrom, uint256 delegatedFromBalance) = delegateInfo(from);
 		(address delegatedTo, uint256 delegatedToBalance) = delegateInfo(to);
+		uint256 _totalTracks = totalTracks();
 
-		if (from == address(0)) {
+		if (delegatedFrom == address(0) && delegatedTo != address(0)) {
 			// Overflow check required: The rest of the code assumes that totalSupply never overflows
 			totalBalance += value;
-		} else {
+		} else if (delegatedFrom != address(0)) {
 			// @dev: decrease tracker balance from sender
 			if (delegatedFromBalance < value) {
 				revert InsufficientBalance(from, delegatedFromBalance, value);
@@ -93,32 +92,38 @@ contract TrackerControl is ITrackerControl {
 			}
 		}
 
-		if (to == address(0)) {
+		if (delegatedTo == address(0) && delegatedFrom != address(0)) {
 			// @dev: remove burned delegated tracks
-			_adjustTotalTracks(delegatedFrom, value, 0); // ignore rounding error for address(0)
-			// Overflow not possible: value <= totalSupply or value <= fromBalance <= totalSupply.
+			_adjustTotalTracks(delegatedFrom, value, _totalTracks, 0); // no rounding error adjustment for address(0)
+			// Overflow not possible: value <= totalBalance or value <= delegatedFromBalance.
 			totalBalance -= value;
-		} else {
+		} else if (delegatedTo != address(0)) {
+			// @dev: adjust anchor with tracked tracks divided equially to the new balance
+			_adjustRecipientTracks(delegatedFrom, delegatedTo, value, _totalTracks, delegatedToBalance + value);
 			unchecked {
 				// @dev: decrease tracker balance from sender
 				// Overflow not possible: balance + value is at most totalSupply, which we know fits into a uint256.
 				trackerBalance[delegatedTo] = delegatedToBalance + value;
 			}
-			// @dev: adjust anchor with tracked tracks divided equially to the new balance
-			_adjustRecipientTracks(delegatedFrom, delegatedTo, value, delegatedToBalance + value);
 		}
 	}
 
-	function _adjustRecipientTracks(address from, address to, uint256 value, uint256 newBalance) internal {
+	function _adjustRecipientTracks(
+		address from,
+		address to,
+		uint256 value,
+		uint256 _totalTracks,
+		uint256 newBalance
+	) internal {
 		uint256 tracked = tracksOf(to);
 		trackerAnchor[to] = uint64(_anchorTime() - tracked / newBalance);
-		_adjustTotalTracks(from, value, tracked % newBalance);
+		_adjustTotalTracks(from, value, _totalTracks, tracked % newBalance);
 	}
 
-	function _adjustTotalTracks(address from, uint256 value, uint256 roundingLoss) internal {
+	function _adjustTotalTracks(address from, uint256 value, uint256 _totalTracks, uint256 roundingLoss) internal {
 		uint64 time = _anchorTime();
 		uint256 lostTracks = from == address(0) ? 0 : (time - trackerAnchor[from]) * value;
-		totalTracksAtAnchor = uint192(totalTracks() - lostTracks - roundingLoss);
+		totalTracksAtAnchor = uint192(_totalTracks - lostTracks - roundingLoss);
 		totalTracksAnchorTime = time;
 	}
 

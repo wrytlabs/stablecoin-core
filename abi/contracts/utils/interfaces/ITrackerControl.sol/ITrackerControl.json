@@ -213,7 +213,7 @@
         "name": "coin",
         "outputs": [
             {
-                "internalType": "contract IStablecoin",
+                "internalType": "contract IERC20",
                 "name": "",
                 "type": "address"
             }
@@ -229,7 +229,7 @@
                 "type": "address"
             }
         ],
-        "name": "getDelegatedInfo",
+        "name": "delegateInfo",
         "outputs": [
             {
                 "internalType": "address",
@@ -285,7 +285,20 @@
                 "type": "address"
             }
         ],
-        "name": "relativeTracks",
+        "name": "quorum",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "totalBalance",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -377,7 +390,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "delegater",
+                "name": "holder",
                 "type": "address"
             }
         ],
