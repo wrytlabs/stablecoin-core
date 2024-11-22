@@ -225,6 +225,19 @@
         "inputs": [
             {
                 "internalType": "address",
+                "name": "to",
+                "type": "address"
+            }
+        ],
+        "name": "delegate",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
                 "name": "holder",
                 "type": "address"
             }

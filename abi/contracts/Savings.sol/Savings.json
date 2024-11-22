@@ -115,6 +115,31 @@
             {
                 "indexed": true,
                 "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "Delegate",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
                 "name": "sender",
                 "type": "address"
             },
@@ -132,6 +157,31 @@
             }
         ],
         "name": "DepositFund",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "Transfer",
         "type": "event"
     },
     {
@@ -286,6 +336,19 @@
             }
         ],
         "name": "declareDeposit",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            }
+        ],
+        "name": "delegate",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -468,7 +531,7 @@
         "outputs": [
             {
                 "internalType": "uint64",
-                "name": "timestamp",
+                "name": "time",
                 "type": "uint64"
             }
         ],

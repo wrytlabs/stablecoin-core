@@ -38,6 +38,8 @@ interface ITrackerControl is IErrors {
 
 	function delegateInfo(address holder) external view returns (address, uint256);
 
+	function delegate(address to) external;
+
 	function _update(address from, address to, uint256 amount) external;
 
 	// Duration checks

@@ -13,6 +13,7 @@ contract TrackerControl is ITrackerControl {
 	string public name;
 
 	// ---------------------------------------------------------------------------------------
+	// Total values
 
 	uint256 public totalBalance;
 	uint256 public totalTracksAtAnchor;
@@ -22,8 +23,14 @@ contract TrackerControl is ITrackerControl {
 	// Mapping Tracker
 
 	mapping(address holder => uint256 value) public trackerBalance;
-	mapping(address holder => uint64 timestamp) public trackerAnchor;
+	mapping(address holder => uint64 time) public trackerAnchor;
 	mapping(address holder => address delegatee) public trackerDelegate;
+
+	// ---------------------------------------------------------------------------------------
+	// Events
+
+	event Transfer(address indexed from, address indexed to, uint256 value);
+	event Delegate(address indexed from, address indexed to, uint256 value);
 
 	// ---------------------------------------------------------------------------------------
 	// Verify Coin
@@ -70,12 +77,24 @@ contract TrackerControl is ITrackerControl {
 
 	function delegateInfo(address holder) public view returns (address, uint256) {
 		address delegatee = trackerDelegate[holder];
-		return (trackerDelegate[delegatee], trackerBalance[delegatee]);
+		return (delegatee, trackerBalance[delegatee]);
 	}
 
 	function _update(address from, address to, uint256 value) public virtual _verifyOnlyCoin {
 		(address delegatedFrom, uint256 delegatedFromBalance) = delegateInfo(from);
 		(address delegatedTo, uint256 delegatedToBalance) = delegateInfo(to);
+		if (delegatedFrom != address(0) || delegatedTo != address(0)) {
+			_updateDelegated(delegatedFrom, delegatedFromBalance, delegatedTo, delegatedToBalance, value);
+		}
+	}
+
+	function _updateDelegated(
+		address delegatedFrom,
+		uint256 delegatedFromBalance,
+		address delegatedTo,
+		uint256 delegatedToBalance,
+		uint256 value
+	) internal {
 		uint256 _totalTracks = totalTracks();
 
 		if (delegatedFrom == address(0) && delegatedTo != address(0)) {
@@ -84,7 +103,7 @@ contract TrackerControl is ITrackerControl {
 		} else if (delegatedFrom != address(0)) {
 			// @dev: decrease tracker balance from sender
 			if (delegatedFromBalance < value) {
-				revert InsufficientBalance(from, delegatedFromBalance, value);
+				revert InsufficientBalance(delegatedFrom, delegatedFromBalance, value);
 			}
 			unchecked {
 				// Overflow not possible: value <= delegatedFromBalance <= totalBalance.
@@ -106,6 +125,8 @@ contract TrackerControl is ITrackerControl {
 				trackerBalance[delegatedTo] = delegatedToBalance + value;
 			}
 		}
+
+		emit Transfer(delegatedFrom, delegatedTo, value);
 	}
 
 	function _adjustRecipientTracks(
@@ -174,11 +195,28 @@ contract TrackerControl is ITrackerControl {
 
 	// ---------------------------------------------------------------------------------------
 
-	// function delegateFrom(address holder, address to) internal {
-	// 	address delegated = trackerDelegate[holder];
+	function delegate(address to) public {
+		_delegateTo(msg.sender, to);
+	}
 
-	// 	// if (delegated == address(0))
-	// }
+	function _delegateTo(address holder, address to) internal {
+		address before = trackerDelegate[holder];
+		if (before == to) revert NoChange();
+
+		trackerDelegate[holder] = to;
+		uint256 coinBalance = coin.balanceOf(holder);
+
+		if (before == address(0)) {
+			// mint full coin balance
+			_updateDelegated(address(0), 0, holder, 0, coinBalance);
+		} else if (to == address(0)) {
+			// burn full coin balance
+			_updateDelegated(before, trackerBalance[before], address(0), 0, coinBalance);
+		} else {
+			// transfer full coin balance
+			_updateDelegated(before, trackerBalance[before], to, trackerBalance[to], coinBalance);
+		}
+	}
 
 	// ---------------------------------------------------------------------------------------
 
