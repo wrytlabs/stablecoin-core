@@ -16,6 +16,8 @@ interface ITrackerControl is IErrors {
 
 	function name() external view returns (string memory);
 
+	function totalBalance() external view returns (uint256);
+
 	function totalTracksAtAnchor() external view returns (uint256);
 
 	function totalTracksAnchorTime() external view returns (uint256);
@@ -24,7 +26,7 @@ interface ITrackerControl is IErrors {
 
 	function trackerAnchor(address holder) external view returns (uint64);
 
-	function trackerDelegate(address delegater) external view returns (address);
+	function trackerDelegate(address holder) external view returns (address);
 
 	// Core tracking functions
 	function checkOnlyCoin(address toCheck) external view returns (bool);
@@ -35,9 +37,7 @@ interface ITrackerControl is IErrors {
 
 	function tracksOf(address holder) external view returns (uint256);
 
-	function relativeTracks(address holder) external view returns (uint256);
-
-	function getDelegatedInfo(address holder) external view returns (address, uint256);
+	function delegateInfo(address holder) external view returns (address, uint256);
 
 	function _update(address from, address to, uint256 amount) external;
 
@@ -49,6 +49,8 @@ interface ITrackerControl is IErrors {
 	function verifyHoldingDuration(address holder) external view;
 
 	// Quorum checks
+	function quorum(address holder) external view returns (uint256);
+
 	function checkQuorum(address holder) external view returns (bool);
 
 	function verifyQuorum(address holder) external view;

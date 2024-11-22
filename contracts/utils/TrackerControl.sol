@@ -13,16 +13,21 @@ contract TrackerControl is ITrackerControl {
 	IStablecoin public immutable coin;
 	string public name;
 
+	// ---------------------------------------------------------------------------------------
+
+	uint256 public totalBalance;
 	uint256 public totalTracksAtAnchor;
 	uint256 public totalTracksAnchorTime;
 
 	// ---------------------------------------------------------------------------------------
+	// Mapping Tracker
 
 	mapping(address holder => uint256 value) public trackerBalance;
 	mapping(address holder => uint64 timestamp) public trackerAnchor;
-	mapping(address delegater => address delegatee) public trackerDelegate;
+	mapping(address holder => address delegatee) public trackerDelegate;
 
 	// ---------------------------------------------------------------------------------------
+	// Verify Coin
 
 	modifier _verifyOnlyCoin() {
 		if (checkOnlyCoin(msg.sender) == false) revert NotCoin();
@@ -37,6 +42,7 @@ contract TrackerControl is ITrackerControl {
 	function verifyOnlyCoin(address toCheck) public view _verifyOnlyCoin {}
 
 	// ---------------------------------------------------------------------------------------
+	// init, set values
 
 	constructor(IStablecoin _coin, string memory _name, uint32 _quorum, uint8 _days) {
 		coin = _coin;
@@ -46,6 +52,7 @@ contract TrackerControl is ITrackerControl {
 	}
 
 	// ---------------------------------------------------------------------------------------
+	// Anchor Time and Tracks
 
 	function _anchorTime() internal view returns (uint64) {
 		return uint64(block.timestamp << TIME_RESOLUTION_BITS);
@@ -59,29 +66,29 @@ contract TrackerControl is ITrackerControl {
 		return trackerBalance[holder] * (_anchorTime() - trackerAnchor[holder]);
 	}
 
-	function relativeTracks(address holder) public view returns (uint256) {
-		return (1 ether * tracksOf(holder)) / totalTracks();
-	}
-
 	// ---------------------------------------------------------------------------------------
+	// Core Functions
 
-	function getDelegatedInfo(address holder) public view returns (address, uint256) {
+	function delegateInfo(address holder) public view returns (address, uint256) {
 		address delegatee = trackerDelegate[holder];
 		address delegatedAddr = delegatee == address(0) ? holder : delegatee;
 		return (delegatedAddr, trackerBalance[delegatedAddr]);
 	}
 
 	function _update(address from, address to, uint256 value) public virtual _verifyOnlyCoin {
-		(address delegatedFrom, uint256 delegatedFromBalance) = getDelegatedInfo(from);
-		(address delegatedTo, uint256 delegatedToBalance) = getDelegatedInfo(to);
+		(address delegatedFrom, uint256 delegatedFromBalance) = delegateInfo(from);
+		(address delegatedTo, uint256 delegatedToBalance) = delegateInfo(to);
 
-		if (from != address(0)) {
+		if (from == address(0)) {
+			// Overflow check required: The rest of the code assumes that totalSupply never overflows
+			totalBalance += value;
+		} else {
 			// @dev: decrease tracker balance from sender
 			if (delegatedFromBalance < value) {
 				revert InsufficientBalance(from, delegatedFromBalance, value);
 			}
 			unchecked {
-				// Overflow not possible
+				// Overflow not possible: value <= delegatedFromBalance <= totalBalance.
 				trackerBalance[delegatedFrom] = delegatedFromBalance - value;
 			}
 		}
@@ -89,6 +96,8 @@ contract TrackerControl is ITrackerControl {
 		if (to == address(0)) {
 			// @dev: remove burned delegated tracks
 			_adjustTotalTracks(delegatedFrom, value, 0); // ignore rounding error for address(0)
+			// Overflow not possible: value <= totalSupply or value <= fromBalance <= totalSupply.
+			totalBalance -= value;
 		} else {
 			unchecked {
 				// @dev: decrease tracker balance from sender
@@ -114,6 +123,7 @@ contract TrackerControl is ITrackerControl {
 	}
 
 	// ---------------------------------------------------------------------------------------
+	// Holding Guard
 
 	function holdingDuration(address holder) public view returns (uint256) {
 		return (_anchorTime() - trackerAnchor[holder]) >> TIME_RESOLUTION_BITS;
@@ -130,6 +140,12 @@ contract TrackerControl is ITrackerControl {
 	}
 
 	// ---------------------------------------------------------------------------------------
+	// Quorum Guard
+
+	function quorum(address holder) public view returns (uint256) {
+		// ralative ratio scaled to 18 decimals
+		return (1 ether * tracksOf(holder)) / totalTracks();
+	}
 
 	function checkQuorum(address holder) public view returns (bool) {
 		return (tracksOf(holder) * 1_000_000) > totalTracks() * CAN_ACTIVATE_QUORUM;
@@ -140,11 +156,10 @@ contract TrackerControl is ITrackerControl {
 	}
 
 	// ---------------------------------------------------------------------------------------
+	// CanActivate Guard
 
 	function checkCanActivate(address holder) public view returns (bool) {
-		if (checkHoldingDuration(holder) == false) return false;
-		if (checkQuorum(holder) == false) return false;
-		return true;
+		return checkHoldingDuration(holder) && checkQuorum(holder);
 	}
 
 	function verifyCanActivate(address holder) public view {
