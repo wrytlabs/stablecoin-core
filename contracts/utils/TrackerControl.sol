@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import '@openzeppelin/contracts/utils/math/Math.sol';
+
 import './interfaces/ITrackerControl.sol';
 
 contract TrackerControl is ITrackerControl {
+	using Math for uint256;
+
 	uint8 private constant TIME_RESOLUTION_BITS = 20;
 
 	uint32 public CAN_ACTIVATE_QUORUM; // @dev: quorum in PPM, for canActivate
@@ -31,6 +35,7 @@ contract TrackerControl is ITrackerControl {
 
 	event Transfer(address indexed from, address indexed to, uint256 value);
 	event Delegate(address indexed from, address indexed to, uint256 value);
+	event Reduced(address indexed from, uint256 value);
 
 	// ---------------------------------------------------------------------------------------
 	// Verify Coin
@@ -219,32 +224,31 @@ contract TrackerControl is ITrackerControl {
 	}
 
 	// ---------------------------------------------------------------------------------------
+	// Risk management for 51% attacks
 
-	// "To respectfully reduce the impact of others, first ensure that you tread lightly yourself."
+	function reduceOwnTracks(uint value) public {
+		_reduceTracks(msg.sender, value);
+	}
 
-	// Ensure that you can reduce others' tracks by respectfully reducing your own as well.
-	// This mechanism potentially gives full control over the system to whoever has 51% of the votes.
+	function reduceTargetTracks(address target, uint256 value) external {
+		uint256 ownTracks = tracksOf(msg.sender);
+		uint256 targetTracks = tracksOf(target);
+		value = Math.min(Math.min(ownTracks, targetTracks), value);
 
-	// function reduceTracks(address[] calldata targets, uint256 tracksToDestroy) external {
-	// 	uint256 budget = _reduceTracks(msg.sender, tracksToDestroy);
-	// 	uint256 destroyedTracks = 0;
-	// 	for (uint256 i = 0; i < targets.length && destroyedTracks < budget; i++) {
-	// 		destroyedTracks += _reduceTracks(targets[i], budget - destroyedTracks);
-	// 	}
-	// 	if (destroyedTracks == 0) revert NotAvailable();
-	// 	totalTracksAtAnchor = uint192(totalTracks() - destroyedTracks - budget);
-	// 	totalTracksAnchorTime = _anchorTime();
-	// }
+		_reduceTracks(msg.sender, value);
+		_reduceTracks(target, value);
+	}
 
-	// function _reduceTracks(address target, uint256 value) internal returns (uint256) {
-	// 	uint256 votesBefore = tracks(target);
-	// 	if (value >= votesBefore) {
-	// 		value = votesBefore;
-	// 		trackerAnchor[target] = _anchorTime();
-	// 		return votesBefore;
-	// 	} else {
-	// 		trackerAnchor[target] = uint64(_anchorTime() - (votesBefore - value) / coin.balanceOf(target));
-	// 		return votesBefore - tracks(target);
-	// 	}
-	// }
+	function _reduceTracks(address target, uint256 value) internal returns (uint256) {
+		if (value == 0) revert NoChange();
+
+		uint256 before = tracksOf(target);
+		value = Math.min(before, value);
+		trackerAnchor[target] = uint64(_anchorTime() - (before - value) / trackerBalance[target]);
+
+		uint256 reduced = before - tracksOf(target);
+		emit Reduced(target, reduced);
+
+		return reduced;
+	}
 }
