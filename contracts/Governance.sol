@@ -6,7 +6,7 @@ import './utils/TrackerControl.sol';
 
 contract Governance is IGovernance, TrackerControl {
 	constructor(
-		IStablecoin _coin,
+		IERC20 _coin,
 		string memory _name,
 		uint32 _quorum,
 		uint8 _days

@@ -2,7 +2,7 @@
     {
         "inputs": [
             {
-                "internalType": "contract IStablecoin",
+                "internalType": "contract IERC20",
                 "name": "_coin",
                 "type": "address"
             },
@@ -108,6 +108,75 @@
         "inputs": [],
         "name": "NotServed",
         "type": "error"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "Delegate",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "Reduced",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "Transfer",
+        "type": "event"
     },
     {
         "inputs": [],
@@ -239,7 +308,7 @@
         "name": "coin",
         "outputs": [
             {
-                "internalType": "contract IStablecoin",
+                "internalType": "contract IERC20",
                 "name": "",
                 "type": "address"
             }
@@ -251,11 +320,24 @@
         "inputs": [
             {
                 "internalType": "address",
+                "name": "to",
+                "type": "address"
+            }
+        ],
+        "name": "delegate",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
                 "name": "holder",
                 "type": "address"
             }
         ],
-        "name": "getDelegatedInfo",
+        "name": "delegateInfo",
         "outputs": [
             {
                 "internalType": "address",
@@ -311,7 +393,51 @@
                 "type": "address"
             }
         ],
-        "name": "relativeTracks",
+        "name": "quorum",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "reduceOwnTracks",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "target",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "reduceTargetTracks",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "totalBalance",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -373,7 +499,7 @@
         "outputs": [
             {
                 "internalType": "uint64",
-                "name": "timestamp",
+                "name": "time",
                 "type": "uint64"
             }
         ],
@@ -403,7 +529,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "delegater",
+                "name": "holder",
                 "type": "address"
             }
         ],
