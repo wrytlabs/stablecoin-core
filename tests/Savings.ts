@@ -2,17 +2,17 @@ import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { Savings, Stablecoin } from '../typechain';
-import { days } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time/duration';
 
-describe('Savings Deployment', function () {
+describe('Savings - Smart Contract', function () {
 	let owner: HardhatEthersSigner;
 	let alice: HardhatEthersSigner;
+	let bob: HardhatEthersSigner;
 
 	let stablecoin: Stablecoin;
 	let savings: Savings;
 
 	before('Should deploy Stablecoin with correct parameters', async () => {
-		[owner, alice] = await ethers.getSigners();
+		[owner, alice, bob] = await ethers.getSigners();
 
 		const Stablecoin = await ethers.getContractFactory('Stablecoin');
 		stablecoin = await Stablecoin.deploy(

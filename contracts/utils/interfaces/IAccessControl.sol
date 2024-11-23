@@ -19,14 +19,14 @@ interface IAccessControl is IErrors {
 	function moduleExpiration(address) external view returns (uint256);
 
 	// Check functions
-	function checkOnlyCoin(address toCheck) external view returns (bool);
+	function checkOnlyCoin(address account) external view returns (bool);
 
-	function checkModule(address toCheck) external view returns (bool);
+	function verifyOnlyCoin(address account) external view;
 
 	// Verify functions
-	function verifyOnlyCoin(address toCheck) external view;
-
 	function verifyModule(address module) external view;
+
+	function checkModule(address module) external view returns (bool);
 
 	// ...
 }

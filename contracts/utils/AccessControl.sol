@@ -26,33 +26,33 @@ abstract contract AccessControl is IAccessControl {
 	// ---------------------------------------------------------------------------------------
 
 	modifier _verifyOnlyCoin() {
-		if (checkOnlyCoin(msg.sender) == false) revert NotCoin();
+		verifyOnlyCoin(msg.sender);
 		_;
 	}
+
+	function checkOnlyCoin(address account) public view returns (bool) {
+		if (account != address(this)) return false;
+		return true;
+	}
+
+	function verifyOnlyCoin(address account) public view {
+		if (checkOnlyCoin(account) == false) revert NotCoin();
+	}
+
+	// ---------------------------------------------------------------------------------------
 
 	modifier _verifyModule() {
 		if (checkModule(msg.sender) == false) revert NotModule(msg.sender);
 		_;
 	}
 
-	// ---------------------------------------------------------------------------------------
-
-	function checkOnlyCoin(address toCheck) public view returns (bool) {
-		if (toCheck != address(this)) return false;
+	function checkModule(address module) public view returns (bool) {
+		if (isModule[module] == false) return false; // not active or default
+		if (moduleActivation[module] == 0) return false; // default
+		if (moduleActivation[module] > block.timestamp) return false; // must be in the past
+		if (moduleExpiration[module] <= block.timestamp) return false; // must be in the future
 		return true;
 	}
-
-	function checkModule(address toCheck) public view returns (bool) {
-		if (isModule[toCheck] == false) return false; // not active or default
-		if (moduleActivation[toCheck] == 0) return false; // default
-		if (moduleActivation[toCheck] > block.timestamp) return false; // must be in the past
-		if (moduleExpiration[toCheck] <= block.timestamp) return false; // must be in the future
-		return true;
-	}
-
-	// ---------------------------------------------------------------------------------------
-
-	function verifyOnlyCoin(address toCheck) public view _verifyOnlyCoin {}
 
 	function verifyModule(address module) public view _verifyModule {}
 

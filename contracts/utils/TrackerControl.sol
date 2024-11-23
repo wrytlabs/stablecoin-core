@@ -41,16 +41,18 @@ contract TrackerControl is ITrackerControl {
 	// Verify Coin
 
 	modifier _verifyOnlyCoin() {
-		if (checkOnlyCoin(msg.sender) == false) revert NotCoin();
+		verifyOnlyCoin(msg.sender);
 		_;
 	}
 
-	function checkOnlyCoin(address toCheck) public view returns (bool) {
-		if (toCheck != address(coin)) return false;
+	function checkOnlyCoin(address account) public view returns (bool) {
+		if (account != address(this)) return false;
 		return true;
 	}
 
-	function verifyOnlyCoin(address toCheck) public view _verifyOnlyCoin {}
+	function verifyOnlyCoin(address account) public view {
+		if (checkOnlyCoin(account) == false) revert NotCoin();
+	}
 
 	// ---------------------------------------------------------------------------------------
 	// init, set values

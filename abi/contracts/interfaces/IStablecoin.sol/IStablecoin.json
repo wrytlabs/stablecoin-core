@@ -243,7 +243,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "toCheck",
+                "name": "module",
                 "type": "address"
             }
         ],
@@ -262,7 +262,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "toCheck",
+                "name": "account",
                 "type": "address"
             }
         ],
@@ -564,7 +564,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "toCheck",
+                "name": "account",
                 "type": "address"
             }
         ],

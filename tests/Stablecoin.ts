@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { Stablecoin } from '../typechain';
 
-describe('Stablecoin Deployment', function () {
+describe('Stablecoin - Smart Contract', function () {
 	let owner: HardhatEthersSigner;
 	let alice: HardhatEthersSigner;
 	let bob: HardhatEthersSigner;
