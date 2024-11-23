@@ -285,6 +285,12 @@
             {
                 "indexed": false,
                 "internalType": "uint256",
+                "name": "covered",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
                 "name": "totalInflow",
                 "type": "uint256"
             }
@@ -316,13 +322,13 @@
             {
                 "indexed": false,
                 "internalType": "uint256",
-                "name": "totalInflowCovered",
+                "name": "totalOutflowCovered",
                 "type": "uint256"
             },
             {
                 "indexed": false,
                 "internalType": "uint256",
-                "name": "totalInflowMinted",
+                "name": "totalOutflowMinted",
                 "type": "uint256"
             }
         ],

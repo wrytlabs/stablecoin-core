@@ -28,7 +28,7 @@ describe('AccessControl - Smart Contract', function () {
 			3 // 3 savingsActivateDays
 		);
 
-		votes = await ethers.getContractAt('Savings', await stablecoin.votes());
+		votes = await ethers.getContractAt('Governance', await stablecoin.votes());
 	});
 
 	// ---------------------------------------------------------------------------------------

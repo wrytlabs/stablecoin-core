@@ -25,13 +25,13 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 
 	// ---------------------------------------------------------------------------------------
 
-	event DeclareInflow(address indexed sender, uint256 value, uint256 totalInflow);
+	event DeclareInflow(address indexed sender, uint256 value, uint256 covered, uint256 totalInflow);
 	event DeclareOutflow(
 		address indexed sender,
 		uint256 value,
 		uint256 covered,
-		uint256 totalInflowCovered,
-		uint256 totalInflowMinted
+		uint256 totalOutflowCovered,
+		uint256 totalOutflowMinted
 	);
 
 	// ---------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	}
 
 	function allowance(address owner, address spender) public view virtual override(ERC20, IERC20) returns (uint256) {
-		if (checkModule(spender) == true) return type(uint256).max;
+		if (checkModule(msg.sender) == true) return type(uint256).max;
 		return super.allowance(owner, spender);
 	}
 
@@ -89,11 +89,22 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 	function declareInflow(address from, uint256 value) public _verifyModule {
 		if (from == address(0) || value == 0) revert NoChange(); // @dev: might change to pass without reverting
 
-		_transfer(from, address(savings), value);
-		savings.declareDeposit(from, value);
+		// totalOutflowMinted
+		uint256 cover = totalOutflowMinted >= value ? value : totalOutflowMinted;
+
+		if (cover > 0) {
+			_burn(from, cover);
+			totalOutflowMinted -= cover;
+		}
+
+		if (value > cover) {
+			uint256 missing = value - cover;
+			_transfer(from, address(savings), missing);
+			savings.declareDeposit(from, missing);
+		}
 
 		totalInflow += value;
-		emit DeclareInflow(from, value, totalInflow);
+		emit DeclareInflow(from, value, totalInflow, cover);
 	}
 
 	function declareOutflow(address to, uint256 value) public _verifyModule {
@@ -108,7 +119,7 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 			totalOutflowCovered += refund;
 		}
 
-		// @dev: mint to cover outflow
+		// @dev: mint to cover missing outflow
 		if (value > refund) {
 			uint256 missing = value - refund; // Overflow not possible
 			_mint(to, missing); // mint missing
