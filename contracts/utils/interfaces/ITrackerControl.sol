@@ -11,8 +11,6 @@ interface ITrackerControl is IErrors {
 
 	function CAN_ACTIVATE_DELAY() external view returns (uint256);
 
-	function coin() external view returns (IERC20);
-
 	function name() external view returns (string memory);
 
 	function totalBalance() external view returns (uint256);
@@ -28,10 +26,6 @@ interface ITrackerControl is IErrors {
 	function trackerDelegate(address holder) external view returns (address);
 
 	// Core tracking functions
-	function checkOnlyCoin(address toCheck) external view returns (bool);
-
-	function verifyOnlyCoin(address toCheck) external view;
-
 	function totalTracks() external view returns (uint256);
 
 	function tracksOf(address holder) external view returns (uint256);
@@ -41,6 +35,17 @@ interface ITrackerControl is IErrors {
 	function delegate(address to) external;
 
 	function _update(address from, address to, uint256 amount) external;
+
+	function reduceOwnTracks(uint value) external;
+
+	function reduceTargetTracks(address target, uint256 value) external;
+
+	// Coin check
+	function coin() external view returns (IERC20);
+
+	function checkOnlyCoin(address toCheck) external view returns (bool);
+
+	function verifyOnlyCoin(address toCheck) external view;
 
 	// Duration checks
 	function holdingDuration(address holder) external view returns (uint256);
@@ -60,7 +65,4 @@ interface ITrackerControl is IErrors {
 	function checkCanActivate(address holder) external view returns (bool);
 
 	function verifyCanActivate(address holder) external view;
-
-	// Track reduction
-	// function reduceTracks(address[] calldata targets, uint256 tracksToDestroy) external;
 }

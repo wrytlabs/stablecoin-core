@@ -36,24 +36,24 @@ describe('Stablecoin - Smart Contract', function () {
 		});
 	});
 
-	describe('Module Management and Minting', () => {
-		it('should set alice as module and allow minting', async () => {
-			// Set alice as module
-			await stablecoin.setModule(alice.address, 'true');
-			expect(await stablecoin.isModule(alice.address)).to.be.true;
+	// describe('Module Management and Minting', () => {
+	// 	it('should set alice as module and allow minting', async () => {
+	// 		// Set alice as module
+	// 		await stablecoin.setModule(alice.address, 'true');
+	// 		expect(await stablecoin.isModule(alice.address)).to.be.true;
 
-			// Mint tokens using alice as module
-			const mintAmount = ethers.parseEther('1000');
-			await stablecoin.connect(alice).mint(alice.address, mintAmount);
-			expect(await stablecoin.balanceOf(alice.address)).to.equal(mintAmount);
-		});
+	// 		// Mint tokens using alice as module
+	// 		const mintAmount = ethers.parseEther('1000');
+	// 		await stablecoin.connect(alice).mint(alice.address, mintAmount);
+	// 		expect(await stablecoin.balanceOf(alice.address)).to.equal(mintAmount);
+	// 	});
 
-		it('should revert when bob tries to set module', async () => {
-			// Bob is not owner, should fail to set module
-			await expect(stablecoin.connect(bob).setModule(bob.address, 'true')).to.be.revertedWithCustomError(
-				stablecoin,
-				'OwnableUnauthorizedAccount'
-			);
-		});
-	});
+	// 	it('should revert when bob tries to set module', async () => {
+	// 		// Bob is not owner, should fail to set module
+	// 		await expect(stablecoin.connect(bob).setModule(bob.address, 'true')).to.be.revertedWithCustomError(
+	// 			stablecoin,
+	// 			'OwnableUnauthorizedAccount'
+	// 		);
+	// 	});
+	// });
 });

@@ -79,12 +79,12 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 		return super.allowance(owner, spender);
 	}
 
+	// ---------------------------------------------------------------------------------------
+
 	function mint(address to, uint256 value) public _verifyModule {
 		if (to == address(0) || value == 0) revert NoChange(); // @dev: might change to pass without reverting
-		_mint(to, value);
+		_mint(to, value); // emits ERC20 Transfer
 	}
-
-	// ---------------------------------------------------------------------------------------
 
 	function declareInflow(address from, uint256 value) public _verifyModule {
 		if (from == address(0) || value == 0) revert NoChange(); // @dev: might change to pass without reverting

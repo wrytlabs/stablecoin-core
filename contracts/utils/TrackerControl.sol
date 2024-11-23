@@ -46,12 +46,12 @@ contract TrackerControl is ITrackerControl {
 	}
 
 	function checkOnlyCoin(address account) public view returns (bool) {
-		if (account != address(this)) return false;
+		if (account != address(coin)) return false;
 		return true;
 	}
 
 	function verifyOnlyCoin(address account) public view {
-		if (checkOnlyCoin(account) == false) revert NotCoin();
+		if (checkOnlyCoin(account) == false) revert NotCoin(account);
 	}
 
 	// ---------------------------------------------------------------------------------------
@@ -168,7 +168,7 @@ contract TrackerControl is ITrackerControl {
 
 	function verifyHoldingDuration(address holder) public view {
 		if (checkHoldingDuration(holder) == false) {
-			revert NotPassedDuration(CAN_ACTIVATE_DELAY - holdingDuration(holder));
+			revert NotPassedDuration(holder, holdingDuration(holder), CAN_ACTIVATE_DELAY);
 		}
 	}
 
@@ -176,8 +176,7 @@ contract TrackerControl is ITrackerControl {
 	// Quorum Guard
 
 	function quorum(address holder) public view returns (uint256) {
-		// ralative ratio scaled to 18 decimals
-		return (1 ether * tracksOf(holder)) / totalTracks();
+		return (tracksOf(holder) * 1_000_000) / totalTracks();
 	}
 
 	function checkQuorum(address holder) public view returns (bool) {
@@ -185,7 +184,9 @@ contract TrackerControl is ITrackerControl {
 	}
 
 	function verifyQuorum(address holder) public view {
-		if (checkQuorum(holder) == false) revert NotQualified();
+		if (checkQuorum(holder) == false) {
+			revert NotPassedQuorum(holder, quorum(holder), CAN_ACTIVATE_QUORUM);
+		}
 	}
 
 	// ---------------------------------------------------------------------------------------
@@ -212,6 +213,7 @@ contract TrackerControl is ITrackerControl {
 
 		trackerDelegate[holder] = to;
 		uint256 coinBalance = coin.balanceOf(holder);
+		if (coinBalance == 0) return;
 
 		if (before == address(0)) {
 			// mint full coin balance
@@ -232,7 +234,7 @@ contract TrackerControl is ITrackerControl {
 		_reduceTracks(msg.sender, value);
 	}
 
-	function reduceTargetTracks(address target, uint256 value) external {
+	function reduceTargetTracks(address target, uint256 value) public {
 		uint256 ownTracks = tracksOf(msg.sender);
 		uint256 targetTracks = tracksOf(target);
 		value = Math.min(Math.min(ownTracks, targetTracks), value);

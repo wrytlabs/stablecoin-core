@@ -36,13 +36,13 @@ abstract contract AccessControl is IAccessControl {
 	}
 
 	function verifyOnlyCoin(address account) public view {
-		if (checkOnlyCoin(account) == false) revert NotCoin();
+		if (checkOnlyCoin(account) == false) revert NotCoin(account);
 	}
 
 	// ---------------------------------------------------------------------------------------
 
 	modifier _verifyModule() {
-		if (checkModule(msg.sender) == false) revert NotModule(msg.sender);
+		verifyModule(msg.sender);
 		_;
 	}
 
@@ -54,7 +54,9 @@ abstract contract AccessControl is IAccessControl {
 		return true;
 	}
 
-	function verifyModule(address module) public view _verifyModule {}
+	function verifyModule(address module) public view {
+		if (checkModule(module) == false) revert NotModule(module);
+	}
 
 	// ---------------------------------------------------------------------------------------
 

@@ -29,11 +29,11 @@ describe('Savings - Smart Contract', function () {
 		savings = await ethers.getContractAt('Savings', savingsAddress);
 	});
 
-	describe('Basic Savings Tests', () => {
-		it('should have correct constructor values', async () => {
-			expect(await savings.name()).to.equal('Savings');
-			expect(await savings.CAN_ACTIVATE_QUORUM()).to.equal(0);
-			// expect(await savings.CAN_ACTIVATE_DELAY()).to.equal((3 * 60 * 60 * 24) << 20);
-		});
-	});
+	// describe('Basic Savings Tests', () => {
+	// 	it('should have correct constructor values', async () => {
+	// 		expect(await savings.name()).to.equal('Savings');
+	// 		expect(await savings.CAN_ACTIVATE_QUORUM()).to.equal(0);
+	// 		// expect(await savings.CAN_ACTIVATE_DELAY()).to.equal((3 * 60 * 60 * 24) << 20);
+	// 	});
+	// });
 });

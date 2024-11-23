@@ -50,7 +50,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "caller",
+                "name": "module",
                 "type": "address"
             }
         ],
@@ -73,7 +73,13 @@
         "type": "error"
     },
     {
-        "inputs": [],
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
         "name": "NotCoin",
         "type": "error"
     },
@@ -81,7 +87,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "account",
+                "name": "module",
                 "type": "address"
             }
         ],
@@ -91,12 +97,43 @@
     {
         "inputs": [
             {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
                 "internalType": "uint256",
                 "name": "",
                 "type": "uint256"
             }
         ],
         "name": "NotPassedDuration",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "NotPassedQuorum",
         "type": "error"
     },
     {
