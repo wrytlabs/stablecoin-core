@@ -30,6 +30,17 @@ contract Savings is ISavings, TrackerControl {
 
 	// ---------------------------------------------------------------------------------------
 
+	function _update(address from, address to, uint256 value) public virtual override(TrackerControl, ITrackerControl) {
+		if (trackerDelegate[from] != address(0)) {
+			// auto claim interests
+		}
+
+		// continue with super and _verifyOnlyCoin
+		super._update(from, to, value);
+	}
+
+	// ---------------------------------------------------------------------------------------
+
 	function declareDeposit(address from, uint256 value) public _verifyOnlyCoin {
 		totalDeposit += value;
 		emit DepositFund(from, value, totalDeposit);

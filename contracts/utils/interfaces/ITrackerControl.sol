@@ -36,9 +36,9 @@ interface ITrackerControl is IErrors {
 
 	function _update(address from, address to, uint256 amount) external;
 
-	function reduceOwnTracks(uint value) external;
+	function reduceOwnTracks(uint value) external returns (uint256);
 
-	function reduceTargetTracks(address target, uint256 value) external;
+	function reduceTargetTracks(address target, uint256 value) external returns (uint256);
 
 	// Coin check
 	function coin() external view returns (IERC20);

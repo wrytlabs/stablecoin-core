@@ -230,17 +230,19 @@ contract TrackerControl is ITrackerControl {
 	// ---------------------------------------------------------------------------------------
 	// Risk management for 51% attacks
 
-	function reduceOwnTracks(uint value) public {
-		_reduceTracks(msg.sender, value);
+	function reduceOwnTracks(uint value) public returns (uint256) {
+		return _reduceTracks(msg.sender, value);
 	}
 
-	function reduceTargetTracks(address target, uint256 value) public {
+	function reduceTargetTracks(address target, uint256 value) public returns (uint256) {
 		uint256 ownTracks = tracksOf(msg.sender);
 		uint256 targetTracks = tracksOf(target);
 		value = Math.min(Math.min(ownTracks, targetTracks), value);
 
 		_reduceTracks(msg.sender, value);
 		_reduceTracks(target, value);
+
+		return value;
 	}
 
 	function _reduceTracks(address target, uint256 value) internal returns (uint256) {
