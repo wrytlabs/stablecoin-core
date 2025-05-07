@@ -1,19 +1,19 @@
 import { ethers } from 'ethers';
 
 export function getChildFromSeed(seed: string, index: number) {
-	return ethers.Wallet.fromPhrase(seed).deriveChild(index);
+	return ethers.HDNodeWallet.fromPhrase(seed, undefined, `m/44'/60'/0'/0/${index}`);
 }
 
 export function getAddressFromChildIndex(seed: string, index: number): string {
-	return ethers.Wallet.fromPhrase(seed).deriveChild(index).address;
+	return getChildFromSeed(seed, index).address;
 }
 
 export function getPublicKeyFromChildIndex(seed: string, index: number): string {
-	return ethers.Wallet.fromPhrase(seed).deriveChild(index).publicKey;
+	return getChildFromSeed(seed, index).publicKey;
 }
 
 export function getPrivateKeyFromChildIndex(seed: string, index: number): string {
-	return ethers.Wallet.fromPhrase(seed).deriveChild(index).privateKey;
+	return getChildFromSeed(seed, index).privateKey;
 }
 
 export function getWalletInto(
@@ -22,7 +22,7 @@ export function getWalletInto(
 	amount: number = 3
 ) {
 	if (!seed) throw new Error('Failed to import the seed string from .env');
-	if (!index) throw new Error('Failed to import the seed string from .env');
+	if (!index) throw new Error('Failed to import the index string from .env');
 	console.log('seed:', seed);
 
 	const start = index && index?.length > 0 ? parseInt(index) : 0;

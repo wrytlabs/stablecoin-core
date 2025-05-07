@@ -6,6 +6,7 @@
 // yarn run <command> args...
 
 "wallet": "npx ts-node helper/wallet.info.ts",
+"wallet:info": "npx ts-node helper/wallet.info.ts",
 
 "compile": "npx hardhat compile",
 "test": "npx hardhat test",
@@ -14,8 +15,8 @@
 "deploy": "npx hardhat ignition deploy",
 "verify": "npx hardhat verify",
 
-"build": "tsup",
-"publish": "npm publish --access public"
+"npm:build": "tsup",
+"npm:publish": "npm publish --access public"
 ```
 
 ### 1. Install dependencies
@@ -29,9 +30,9 @@
 ```JSON
 file: .env
 
-ALCHEMY_RPC_KEY=...
 DEPLOYER_SEED="test test test test test test test test test test test junk"
-DEPLOYER_SEED_INDEX=1 // optional, select deployer
+DEPLOYER_SEED_INDEX=1
+ALCHEMY_RPC_KEY=...
 ETHERSCAN_API=...
 ```
 
@@ -57,10 +58,13 @@ yarn run coverage               	# Generate test coverage report
 
 ### 5. Write Deployment Scripts (via ignition deploy and verify)
 
-> Deployment modules are located in /ignition/modules. Deploy your contracts:
+-   Create new `/ignition/params/[file].ts` for type conform deployment params
+-   Create new `/ignition/module/[file].ts` for workflow of deployment
+
+> Deployment modules are located in `/ignition/modules`. Deploy your contracts:
 
 ```Bash
-yarn run deploy ignition/modules/Membership.ts --network polygon --verify --deployment-id membership0
+yarn run deploy ignition/modules/MembershipFactory.ts --network polygon --verify --deployment-id Membership01
 
 --> increase: deployment-id
 ```
@@ -69,7 +73,7 @@ This will:
 
 -   Compile and deploy contracts
 -   Verify on Etherscan and Sourcify
--   Generate deployment artifacts in /ignition/deployments
+-   Generate deployment artifacts in `/ignition/deployments`
 
 Verify:
 
@@ -136,7 +140,7 @@ Contract contracts/Storage.sol:Storage already verified on network polygon:
 
 `npx hardhat verify --network polygon --constructor-args ./ignition/constructor-args/$FILE.js $ADDRESS`
 
-or manually include unrelated contracts
+or manually include unrelated contracts by creating or using `/ignition/constructor-args/[file].js`
 
 `npx hardhat ignition verify $DEPLOYMENT --include-unrelated-contracts`
 

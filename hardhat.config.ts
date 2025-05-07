@@ -14,12 +14,14 @@ dotenv.config();
 
 // ---------------------------------------------------------------------------------------
 
-const index = process.env.DEPLOYER_SEED_INDEX;
-const start = index && index?.length > 0 ? parseInt(index) : 0;
+const indexParsed = process.env.DEPLOYER_SEED_INDEX;
+const index = indexParsed && indexParsed?.length > 0 ? parseInt(indexParsed) : 0;
 
 const seed = process.env.DEPLOYER_SEED;
 if (!seed) throw new Error('Failed to import the seed string from .env');
-const wallet = getChildFromSeed(seed, start); // deployer
+const wallet = getChildFromSeed(seed, index); // deployer
+
+// log infos
 console.log('### Deployer Wallet ###');
 console.log(wallet.address, `index: `, wallet.index);
 
@@ -47,6 +49,7 @@ const config: HardhatUserConfig = {
 			chainId: 1,
 			gas: 'auto',
 			gasPrice: 'auto',
+			gasMultiplier: 0.8,
 			accounts: [wallet.privateKey],
 			timeout: 50_000,
 		},
@@ -68,24 +71,24 @@ const config: HardhatUserConfig = {
 		},
 	},
 	etherscan: {
-		apiKey: {
-			// mainnet: etherscan,
-			citrea: 'your API key',
-		},
-		customChains: [
-			{
-				network: 'citrea',
-				chainId: 5115,
-				urls: {
-					apiURL: 'https://explorer.testnet.citrea.xyz/api',
-					browserURL: 'https://explorer.testnet.citrea.xyz',
-				},
-			},
-		],
+		apiKey: etherscan,
+		// apiKey: {
+		// citrea: 'your API key',
+		// },
+		// customChains: [
+		// 	{
+		// 		network: 'citrea',
+		// 		chainId: 5115,
+		// 		urls: {
+		// 			apiURL: 'https://explorer.testnet.citrea.xyz/api',
+		// 			browserURL: 'https://explorer.testnet.citrea.xyz',
+		// 		},
+		// 	},
+		// ],
 	},
-	// sourcify: {
-	// 	enabled: true,
-	// },
+	sourcify: {
+		enabled: true,
+	},
 	namedAccounts: {
 		deployer: {
 			default: 0,
