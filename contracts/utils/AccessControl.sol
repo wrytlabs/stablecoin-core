@@ -5,8 +5,8 @@ import './interfaces/IAccessControl.sol';
 
 abstract contract AccessControl is IAccessControl {
 	uint256 public constant CAN_ACTIVATE_DELAY = 30 days; // 1 month
-	uint256 public constant ACTIVATION_DURATION = 2 * 365 days; // 2 years
-	uint256 public constant ACTIVATION_MULTIPLIER = 3; // extend 3x time served
+	uint256 public constant ACTIVATION_DURATION = 365 days; // 1 years
+	uint256 public constant ACTIVATION_MULTIPLIER = 2; // extend 2x time served
 
 	mapping(address => bool) public isModule;
 	mapping(address => uint256) public moduleActivation;
@@ -80,7 +80,8 @@ abstract contract AccessControl is IAccessControl {
 		}
 		// could revert a proposal
 		else if (!activate && checkModule(module) == false) {
-			moduleExpiration[module] = moduleActivation[module];
+			moduleActivation[module] = 0;
+			moduleExpiration[module] = 0;
 		}
 
 		emit ModuleUpdated(

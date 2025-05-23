@@ -48,6 +48,7 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 		savings = new Savings(this, 'Savings', savingsQuorumPPM_, savingsActivateDays_);
 	}
 
+	// only used for init phase
 	function setModule(address module, string calldata message) public {
 		if (totalSupply() > 0) revert NotAvailable();
 		isModule[module] = true;
@@ -56,23 +57,25 @@ contract Stablecoin is IStablecoin, ERC20, AccessControl {
 		emit ModuleUpdated(msg.sender, module, message, true, block.timestamp, type(uint256).max);
 	}
 
+	// pay 1000 in Stables for configuration a model
 	function configModule(address module, bool activate, string calldata message) public {
 		votes.verifyCanActivate(msg.sender);
+		declareInflow(msg.sender, 1000 ether);
 		_configModule(module, activate, message);
 	}
 
 	// ---------------------------------------------------------------------------------------
 	// ERC20 modifications
-	function _update(address from, address to, uint256 value) internal virtual override {
-		// update voting power
-		votes._update(from, to, value);
+	// function _update(address from, address to, uint256 value) internal virtual override {
+	// 	// update voting power
+	// 	votes._update(from, to, value);
 
-		// update interest claim
-		savings._update(from, to, value);
+	// 	// update interest claim
+	// 	savings._update(from, to, value);
 
-		// update balance via super
-		super._update(from, to, value);
-	}
+	// 	// update balance via super
+	// 	super._update(from, to, value);
+	// }
 
 	function allowance(address owner, address spender) public view virtual override(ERC20, IERC20) returns (uint256) {
 		if (checkModule(msg.sender) == true) return type(uint256).max;
