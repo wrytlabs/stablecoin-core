@@ -28,7 +28,8 @@ contract MarketOffer is ERC721 {
 	event Cancelled(uint256 id);
 	event Filled(uint256 id, uint256 take, uint256 left);
 
-	error InvalidOffer(uint256 take, uint256 give);
+	error InvalidOffer(uint256 amount, uint256 minAmount);
+	error InvalidInput(uint256 take, uint256 give);
 	error InvalidAmount(uint256 available, uint256 wanted);
 	error InvalidDust(uint256 dustAmount, uint256 minAmount);
 
@@ -44,11 +45,11 @@ contract MarketOffer is ERC721 {
 
 	// ---------------------------------------------------------------------------------------
 
-	function createOffer(address tokenIn, address tokenOut, uint256 price, uint256 amount, uint256 minAmount) external {
-		_createOfferFrom(msg.sender, msg.sender, tokenIn, tokenOut, price, amount, minAmount);
+	function create(address tokenIn, address tokenOut, uint256 price, uint256 amount, uint256 minAmount) external {
+		_createFrom(msg.sender, msg.sender, tokenIn, tokenOut, price, amount, minAmount);
 	}
 
-	function createOfferFrom(
+	function createFrom(
 		address from,
 		address onBehalf,
 		address tokenIn,
@@ -57,10 +58,10 @@ contract MarketOffer is ERC721 {
 		uint256 amount,
 		uint256 minAmount
 	) external {
-		_createOfferFrom(from, onBehalf, tokenIn, tokenOut, price, amount, minAmount);
+		_createFrom(from, onBehalf, tokenIn, tokenOut, price, amount, minAmount);
 	}
 
-	function _createOfferFrom(
+	function _createFrom(
 		address from,
 		address onBehalf,
 		address tokenIn,
@@ -69,18 +70,23 @@ contract MarketOffer is ERC721 {
 		uint256 amount,
 		uint256 minAmount
 	) internal {
+		if (minAmount > amount) revert InvalidOffer(amount, minAmount);
+
+		// deposit initial funds
 		IERC20(tokenIn).safeTransferFrom(from, address(this), amount);
 
+		// create offer
 		tokenCnt += 1;
 		offers[tokenCnt] = Offer(onBehalf, tokenIn, tokenOut, price, amount, minAmount);
 
+		// mint ownership token
 		_safeMint(onBehalf, tokenCnt);
 		emit Created(tokenCnt, tokenIn, tokenOut, price, amount, minAmount);
 	}
 
 	// ---------------------------------------------------------------------------------------
 
-	function cancelOffer(uint256 id, address target) external {
+	function cancel(uint256 id, address target) external {
 		Offer memory offer = offers[id];
 
 		// check
@@ -90,12 +96,12 @@ contract MarketOffer is ERC721 {
 			revert ERC721IncorrectOwner(msg.sender, id, offer.maker);
 		}
 
-		// return funds
-		IERC20(offer.tokenIn).safeTransfer(target, offer.amount);
-
 		// remove entries
 		delete offers[id];
 		_burn(id);
+
+		// return funds
+		IERC20(offer.tokenIn).safeTransfer(target, offer.amount);
 
 		// event
 		emit Cancelled(id);
@@ -103,7 +109,7 @@ contract MarketOffer is ERC721 {
 
 	// ---------------------------------------------------------------------------------------
 
-	function fillOffer(uint256 id, address from, address target, uint256 take, uint256 give) external {
+	function fill(uint256 id, address from, address target, uint256 take, uint256 give) external {
 		Offer memory offer = offers[id];
 
 		// check existance
@@ -119,7 +125,7 @@ contract MarketOffer is ERC721 {
 		}
 
 		// inputs validation
-		if (take == 0 || give == 0) revert InvalidOffer(take, give);
+		if (take == 0 || give == 0) revert InvalidInput(take, give);
 		if (take > offer.amount) revert InvalidAmount(offer.amount, take);
 
 		uint256 dust = offer.amount - take;
