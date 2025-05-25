@@ -16,11 +16,6 @@ interface IModuleAccess {
 
 	function moduleExpiration(address) external view returns (uint256);
 
-	// Check functions
-	function checkOnlyCoin(address account) external view returns (bool);
-
-	function verifyOnlyCoin(address account) external view;
-
 	// Verify functions
 	function verifyModule(address module) external view;
 

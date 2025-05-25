@@ -2,8 +2,9 @@
 pragma solidity ^0.8.20;
 
 import {IModuleAccess} from './IModuleAccess.sol';
+import {Context} from '@openzeppelin/contracts/utils/Context.sol';
 
-abstract contract ModuleAccess is IModuleAccess {
+abstract contract ModuleAccess is IModuleAccess, Context {
 	uint256 public constant CAN_ACTIVATE_DELAY = 30 days; // 1 month
 	uint256 public constant ACTIVATION_DURATION = 2 * 365 days; // 2 years
 	uint256 public constant ACTIVATION_MULTIPLIER = 2; // extend 2x time served
@@ -25,30 +26,14 @@ abstract contract ModuleAccess is IModuleAccess {
 
 	// ---------------------------------------------------------------------------------------
 
-	error NotCoin(address account, address coin);
 	error NotModule(address module);
 	error NotServed(address module, uint256 current, uint256 missing);
 	error Expired(address module, uint256 expiration);
 
 	// ---------------------------------------------------------------------------------------
 
-	modifier _verifyOnlyCoin() {
-		verifyOnlyCoin(msg.sender);
-		_;
-	}
-
-	function checkOnlyCoin(address account) public view returns (bool) {
-		return (account == address(this));
-	}
-
-	function verifyOnlyCoin(address account) public view {
-		if (checkOnlyCoin(account) == false) revert NotCoin(account, address(this));
-	}
-
-	// ---------------------------------------------------------------------------------------
-
 	modifier _verifyModule() {
-		verifyModule(msg.sender);
+		verifyModule(_msgSender());
 		_;
 	}
 
@@ -90,7 +75,7 @@ abstract contract ModuleAccess is IModuleAccess {
 		}
 
 		emit ModuleUpdated(
-			msg.sender,
+			_msgSender(),
 			module,
 			message,
 			isModule[module],

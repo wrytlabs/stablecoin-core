@@ -7,9 +7,9 @@ interface IStablecoin is IERC20 {
 	// Core Accounting
 	function totalInflow() external view returns (uint256);
 
-	function totalOutflowMinted() external view returns (uint256);
+	function totalDebtMinted() external view returns (uint256);
 
-	function totalOutflowCovered() external view returns (uint256);
+	function totalDebtCovered() external view returns (uint256);
 
 	// Modules functions
 	function configModule(address module, bool activate, string calldata message) external;
@@ -17,7 +17,7 @@ interface IStablecoin is IERC20 {
 	// Core functions
 	function mint(address account, uint256 value) external;
 
-	// function declareInflow(address from, uint256 value) external;
+	function inflow(address from, uint256 value) external;
 
-	// function declareOutflow(address to, uint256 value) external;
+	function outflow(address to, uint256 value) external;
 }

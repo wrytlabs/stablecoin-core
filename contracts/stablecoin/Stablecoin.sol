@@ -5,6 +5,8 @@ import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
 
 import {SafeERC20} from '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import {ERC20} from '@openzeppelin/contracts/token/ERC20/ERC20.sol';
+import {ERC20Permit} from '@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol';
+import {ERC1363} from '@openzeppelin/contracts/token/ERC20/extensions/ERC1363.sol';
 import {Ownable2Step} from '@openzeppelin/contracts/access/Ownable2Step.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 
@@ -12,13 +14,13 @@ import {IStablecoin, IERC20} from './IStablecoin.sol';
 import {ModuleAccess} from '../access/ModuleAccess.sol';
 
 // TODO: ERC20, ERC20Permit, ERC721, ERC...
-contract Stablecoin is ERC20, Ownable2Step, ModuleAccess, IStablecoin {
+contract Stablecoin is ERC20, ERC20Permit, ERC1363, Ownable2Step, ModuleAccess, IStablecoin {
 	using Math for uint256;
 	using SafeERC20 for ERC20;
 
 	uint256 public totalInflow;
-	uint256 public totalOutflowMinted;
-	uint256 public totalOutflowCovered;
+	uint256 public totalDebtMinted;
+	uint256 public totalDebtCovered;
 
 	// ---------------------------------------------------------------------------------------
 
@@ -27,17 +29,29 @@ contract Stablecoin is ERC20, Ownable2Step, ModuleAccess, IStablecoin {
 		address indexed sender,
 		uint256 value,
 		uint256 covered,
-		uint256 totalOutflowCovered,
-		uint256 totalOutflowMinted
+		uint256 totalDebtCovered,
+		uint256 totalDebtMinted
 	);
 
 	// ---------------------------------------------------------------------------------------
 
-	error InvalidMint();
+	error InvalidZero();
 
 	// ---------------------------------------------------------------------------------------
 
-	constructor(string memory _name, string memory _symbol, address _dao) ERC20(_name, _symbol) Ownable(_dao) {}
+	modifier onlyOwnerOrModule() {
+		address m = _msgSender();
+		if (m != owner()) verifyModule(m);
+		_;
+	}
+
+	// ---------------------------------------------------------------------------------------
+
+	constructor(
+		string memory _name,
+		string memory _symbol,
+		address _dao
+	) ERC20(_name, _symbol) ERC20Permit(_name) Ownable(_dao) {}
 
 	function configModule(address module, bool activate, string calldata message) public onlyOwner {
 		_configModule(module, activate, message);
@@ -56,51 +70,70 @@ contract Stablecoin is ERC20, Ownable2Step, ModuleAccess, IStablecoin {
 
 	// ---------------------------------------------------------------------------------------
 
-	function mint(address to, uint256 value) public _verifyModule {
-		if (value == 0) revert InvalidMint(); // @dev: restrict zero mints
+	function mint(address to, uint256 value) public onlyOwnerOrModule {
+		if (value == 0) revert InvalidZero(); // @dev: restrict zero mints
 		_mint(to, value); // checks zeroAddress and emits ERC20 Transfer
 	}
 
-	// function declareInflow(address from, uint256 value) public _verifyModule {
-	// 	if (from == address(0) || value == 0) revert NoChange(); // @dev: might change to pass without reverting
+	function permitAndTransferFrom(
+		address owner,
+		address to,
+		uint256 value,
+		uint256 deadline,
+		uint8 v,
+		bytes32 r,
+		bytes32 s
+	) external {
+		// Approve spender (msg.sender) via permit
+		permit(owner, _msgSender(), value, deadline, v, r, s);
 
-	// 	// totalOutflowMinted
-	// 	uint256 cover = totalOutflowMinted >= value ? value : totalOutflowMinted;
+		// Transfer tokens from owner to recipient
+		transferFrom(owner, to, value);
+	}
 
-	// 	if (cover > 0) {
-	// 		_burn(from, cover);
-	// 		totalOutflowMinted -= cover;
-	// 	}
+	// ---------------------------------------------------------------------------------------
 
-	// 	if (value > cover) {
-	// 		uint256 missing = value - cover;
-	// 		_transfer(from, address(savings), missing);
-	// 		savings.declareDeposit(from, missing);
-	// 	}
+	function inflow(address from, uint256 value) public onlyOwnerOrModule {
+		if (value == 0) revert InvalidZero();
 
-	// 	totalInflow += value;
-	// 	emit DeclareInflow(from, value, totalInflow, cover);
-	// }
+		// totalDebtMinted
+		uint256 cover = totalDebtMinted >= value ? value : totalDebtMinted;
 
-	// function declareOutflow(address to, uint256 value) public _verifyModule {
-	// 	if (to == address(0) || value == 0) revert NoChange(); // @dev: might change to pass without reverting
+		if (cover > 0) {
+			_burn(from, cover);
+			totalDebtMinted -= cover;
+		}
 
-	// 	uint256 saved = balanceOf(address(savings));
-	// 	uint256 refund = saved >= value ? value : saved;
+		if (value > cover) {
+			uint256 missing = value - cover;
+			_transfer(from, address(owner()), missing);
+		}
 
-	// 	// @dev: refund from savings
-	// 	if (refund > 0) {
-	// 		_transfer(address(savings), to, refund);
-	// 		totalOutflowCovered += refund;
-	// 	}
+		totalInflow += value;
+		emit DeclareInflow(from, value, totalInflow, cover);
+	}
 
-	// 	// @dev: mint to cover missing outflow
-	// 	if (value > refund) {
-	// 		uint256 missing = value - refund; // Overflow not possible
-	// 		_mint(to, missing); // mint missing
-	// 		totalOutflowMinted += missing; //  we know fits into an uint256
-	// 	}
+	// ---------------------------------------------------------------------------------------
 
-	// 	emit DeclareOutflow(to, value, refund, totalOutflowCovered, totalOutflowMinted);
-	// }
+	function outflow(address to, uint256 value) public onlyOwnerOrModule {
+		if (value == 0) revert InvalidZero();
+
+		uint256 saved = balanceOf(address(owner()));
+		uint256 refund = saved >= value ? value : saved;
+
+		// @dev: refund from savings
+		if (refund > 0) {
+			_transfer(address(owner()), to, refund);
+			totalDebtCovered += refund;
+		}
+
+		// @dev: mint to cover missing outflow
+		if (value > refund) {
+			uint256 missing = value - refund; // Overflow not possible
+			_mint(to, missing); // mint missing
+			totalDebtMinted += missing; //  we know fits into an uint256
+		}
+
+		emit DeclareOutflow(to, value, refund, totalDebtCovered, totalDebtMinted);
+	}
 }
