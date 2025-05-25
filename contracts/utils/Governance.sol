@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import './interfaces/IGovernance.sol';
-import './utils/TrackerControl.sol';
+import './IGovernance.sol';
+import './TrackerControl.sol';
 
 contract Governance is IGovernance, TrackerControl {
 	constructor(

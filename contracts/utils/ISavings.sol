@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../utils/interfaces/ITrackerControl.sol';
+import './ITrackerControl.sol';
 
 interface ISavings is ITrackerControl {
 	// State view functions

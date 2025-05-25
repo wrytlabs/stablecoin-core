@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/utils/math/Math.sol';
 
-import './interfaces/ITrackerControl.sol';
+import './ITrackerControl.sol';
 
 contract TrackerControl is ITrackerControl {
 	using Math for uint256;

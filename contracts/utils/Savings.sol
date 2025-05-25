@@ -3,9 +3,10 @@ pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
-import './interfaces/IStablecoin.sol';
-import './interfaces/ISavings.sol';
-import './utils/TrackerControl.sol';
+import '../stablecoin/IStablecoin.sol';
+
+import './ISavings.sol';
+import './TrackerControl.sol';
 
 contract Savings is ISavings, TrackerControl {
 	uint256 public totalDeposit;
