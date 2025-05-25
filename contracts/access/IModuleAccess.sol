@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import '../../interfaces/IErrors.sol';
-
-interface IAccessControl is IErrors {
+interface IModuleAccess {
 	// Constant
 	function CAN_ACTIVATE_DELAY() external view returns (uint256);
 

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import './interfaces/IAccessControl.sol';
+import {IModuleAccess} from './IModuleAccess.sol';
 
-abstract contract AccessControl is IAccessControl {
+abstract contract ModuleAccess is IModuleAccess {
 	uint256 public constant CAN_ACTIVATE_DELAY = 30 days; // 1 month
 	uint256 public constant ACTIVATION_DURATION = 2 * 365 days; // 2 years
-	uint256 public constant ACTIVATION_MULTIPLIER = 3; // extend 3x time served
+	uint256 public constant ACTIVATION_MULTIPLIER = 2; // extend 2x time served
 
 	mapping(address => bool) public isModule;
 	mapping(address => uint256) public moduleActivation;
@@ -25,18 +25,24 @@ abstract contract AccessControl is IAccessControl {
 
 	// ---------------------------------------------------------------------------------------
 
+	error NotCoin(address account, address coin);
+	error NotModule(address module);
+	error NotServed(address module, uint256 current, uint256 missing);
+	error Expired(address module, uint256 expiration);
+
+	// ---------------------------------------------------------------------------------------
+
 	modifier _verifyOnlyCoin() {
 		verifyOnlyCoin(msg.sender);
 		_;
 	}
 
 	function checkOnlyCoin(address account) public view returns (bool) {
-		if (account != address(this)) return false;
-		return true;
+		return (account == address(this));
 	}
 
 	function verifyOnlyCoin(address account) public view {
-		if (checkOnlyCoin(account) == false) revert NotCoin(account);
+		if (checkOnlyCoin(account) == false) revert NotCoin(account, address(this));
 	}
 
 	// ---------------------------------------------------------------------------------------
@@ -65,7 +71,7 @@ abstract contract AccessControl is IAccessControl {
 		if (activate && checkModule(module) == true) {
 			uint256 duration = moduleExpiration[module] - moduleActivation[module]; // approved duration
 			uint256 active = block.timestamp - moduleActivation[module]; // time active
-			if (active * 2 <= duration) revert NotServed(); // serve more then 50% of your duration
+			if (active * 2 <= duration) revert NotServed(module, active, duration / 2 - active); // serve more then 50% of your duration
 			moduleExpiration[module] = block.timestamp + ACTIVATION_MULTIPLIER * active; // extend relative
 		}
 		// activate with delay or after expiration
