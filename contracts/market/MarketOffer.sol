@@ -8,6 +8,7 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 struct Offer {
 	address maker;
+	address taker;
 	address tokenIn;
 	address tokenOut;
 	uint256 price;
@@ -30,6 +31,7 @@ contract MarketOffer is ERC721 {
 
 	error InvalidOffer(uint256 amount, uint256 minAmount);
 	error InvalidInput(uint256 take, uint256 give);
+	error InvalidTaker(address from, uint256 tokenId, address taker);
 	error InvalidAmount(uint256 available, uint256 wanted);
 	error InvalidDust(uint256 dustAmount, uint256 minAmount);
 
@@ -46,24 +48,26 @@ contract MarketOffer is ERC721 {
 	// ---------------------------------------------------------------------------------------
 
 	function create(address tokenIn, address tokenOut, uint256 price, uint256 amount, uint256 minAmount) external {
-		_createFrom(msg.sender, msg.sender, tokenIn, tokenOut, price, amount, minAmount);
+		_createFrom(msg.sender, msg.sender, address(0), tokenIn, tokenOut, price, amount, minAmount);
 	}
 
 	function createFrom(
 		address from,
 		address onBehalf,
+		address taker,
 		address tokenIn,
 		address tokenOut,
 		uint256 price,
 		uint256 amount,
 		uint256 minAmount
 	) external {
-		_createFrom(from, onBehalf, tokenIn, tokenOut, price, amount, minAmount);
+		_createFrom(from, onBehalf, taker, tokenIn, tokenOut, price, amount, minAmount);
 	}
 
 	function _createFrom(
 		address from,
 		address onBehalf,
+		address taker,
 		address tokenIn,
 		address tokenOut,
 		uint256 price,
@@ -77,7 +81,7 @@ contract MarketOffer is ERC721 {
 
 		// create offer
 		tokenCnt += 1;
-		offers[tokenCnt] = Offer(onBehalf, tokenIn, tokenOut, price, amount, minAmount);
+		offers[tokenCnt] = Offer(onBehalf, taker, tokenIn, tokenOut, price, amount, minAmount);
 
 		// mint ownership token
 		_safeMint(onBehalf, tokenCnt);
@@ -115,6 +119,11 @@ contract MarketOffer is ERC721 {
 		// check existance
 		if (offer.maker == address(0)) {
 			revert ERC721NonexistentToken(id);
+		}
+
+		// verify taker
+		if (offer.taker != address(0) && offer.taker != from) {
+			revert InvalidTaker(from, id, offer.taker);
 		}
 
 		// make params available
