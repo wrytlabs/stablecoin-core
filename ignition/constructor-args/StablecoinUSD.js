@@ -1,0 +1,1 @@
+module.exports = ["WrytLabs Stable USD","wySUSD","0x99aD438bF4a4691704721B0cBAa78D920160828a"];
